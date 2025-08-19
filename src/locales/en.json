@@ -28,7 +28,8 @@
       "accountType": "Account Type",
       "holder1Info": "Co-holder 1",
       "holder2Info": "Co-holder 2",
-      "signatures": "Signatures"
+      "signatures": "Signatures",
+      "KYC":"Kyc verification"
     },
     "fields": {
       "fullName": "Full Name",
@@ -85,7 +86,10 @@
       "signature2": "Co-holder 2 Signature",
       "declaration": "I declare that the information provided is accurate",
       "terms1Accepted": "Co-holder 1 accepts the terms and conditions",
-      "terms2Accepted": "Co-holder 2 accepts the terms and conditions"
+      "terms2Accepted": "Co-holder 2 accepts the terms and conditions",
+      "frontCNI": "front CNI",
+      "backCNI": "back CNI"
+
     },
     "accountTypes": {
       "epargne": "Savings Account",

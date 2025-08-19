@@ -28,7 +28,12 @@
       "accountType": "Type de Compte",
       "holder1Info": "Cotitulaire 1",
       "holder2Info": "Cotitulaire 2",
-      "signatures": "Signatures"
+      "signatures": "Signatures",
+      "KYC":"Kyc verification",
+      "frontCNI": "recto de la CNI",
+      "backCNI": "verseau de la  CNI"
+
+
     },
     "fields": {
       "fullName": "Noms et Prénoms",

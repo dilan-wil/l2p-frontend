@@ -15,6 +15,7 @@ import SignatureField from "./signature"
 import PersonalAccountForm from "./registration-forms/personal-form"
 import JointAccountForm from "./registration-forms/joint-form"
 import { useTranslations } from "@/lib/useTranslations"
+import axios from 'axios'
 
 interface FormErrors {
   [key: string]: string
@@ -32,8 +33,11 @@ export function BankRegistrationForm() {
 
   const handlePersonalSubmit = async (data: any) => {
     setIsSubmitting(true)
-    console.log("Personal Account Registration:", data)
-
+    // console.log("Personal Account Registration:", data)
+    await axios.post('https://l2p-finance-backend.onrender.com/auth',data)
+    .then(res => console.log('andy est le best'))
+    .then(res => console.log('reponse is :',res))
+    .catch(err => console.error(" votre erreure est ",err))
     setTimeout(() => {
       setIsSubmitting(false)
       alert("Inscription réussie! Votre demande a été soumise.")
@@ -70,7 +74,7 @@ export function BankRegistrationForm() {
 
         <TabsContent value="personal" className="space-y-6">
           <PersonalAccountForm onSubmit={handlePersonalSubmit} isSubmitting={isSubmitting} />
-        </TabsContent>
+        </TabsContent> 
 
         <TabsContent value="joint" className="space-y-6">
           <JointAccountForm onSubmit={handleJointSubmit} isSubmitting={isSubmitting} />
