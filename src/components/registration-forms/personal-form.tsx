@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { User, Phone, Briefcase, Users, CreditCard, PenTool, ChevronLeft, ChevronRight } from "lucide-react"
+import { User, Phone, Briefcase, Users, CreditCard, PenTool, ChevronLeft, ChevronRight, KeyRound } from "lucide-react"
 import { useTranslations } from "@/lib/useTranslations"
 
 interface PersonalFormData {
@@ -33,6 +33,8 @@ interface PersonalFormData {
   maritalStatus: string
   children: number
   salary: number
+  frontCni: string
+  backCni: string
 
   // Emergency Contacts
   contact1Name: string
@@ -74,7 +76,7 @@ const Step = ({
   if (!isActive) return null
 
   return (
-    <Card className="border-2 border-blue-200">
+    <Card className="border-2 ">
       <CardContent className="p-6">
         <div className="flex items-center gap-3 mb-6">
           {icon}
@@ -125,6 +127,8 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     accountPlacement: false,
     signature: "",
     termsAccepted: false,
+    frontCni:'',
+    backCni:'',
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
@@ -133,18 +137,11 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
   const steps = [
     { key: "personalInfo", title: t("steps.personalInfo"), icon: <User className="h-5 w-5 text-blue-600" /> },
     { key: "contactInfo", title: t("steps.contactInfo"), icon: <Phone className="h-5 w-5 text-blue-600" /> },
-    {
-      key: "professionalInfo",
-      title: t("steps.professionalInfo"),
-      icon: <Briefcase className="h-5 w-5 text-blue-600" />,
-    },
-    {
-      key: "emergencyContacts",
-      title: t("steps.emergencyContacts"),
-      icon: <Users className="h-5 w-5 text-blue-600" />,
-    },
+    { key: "professionalInfo",title: t("steps.professionalInfo"),icon: <Briefcase className="h-5 w-5 text-blue-600" />,},
+    { key: "emergencyContacts",title: t("steps.emergencyContacts"),icon: <Users className="h-5 w-5 text-blue-600" />,},
     { key: "accountTypes", title: t("steps.accountTypes"), icon: <CreditCard className="h-5 w-5 text-blue-600" /> },
     { key: "signature", title: t("steps.signature"), icon: <PenTool className="h-5 w-5 text-blue-600" /> },
+    { key: "kyc verification", title: "Kyc verification", icon: <KeyRound className="h-5 w-5 text-blue-600" /> },
   ]
 
   const totalSteps = steps.length
@@ -182,6 +179,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       case 5: // Signature
         if (!formData.termsAccepted) newErrors.termsAccepted = "Vous devez accepter les conditions"
         break
+      // case 6: // Kyc verification
+      //   if (!formData.termsAccepted) newErrors.termsAccepted = "Vous devez accepter les conditions"
+      //   break
     }
 
     setErrors(newErrors)
@@ -216,7 +216,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
             {currentStep + 1} / {totalSteps}
           </span>
         </div>
-        <Progress value={((currentStep + 1) / totalSteps) * 100} className="w-full" />
+        <Progress value={((currentStep) / totalSteps) * 100} className="w-full" />
       </div>
 
       {/* Personal Information Step */}
@@ -630,6 +630,31 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
             </Label>
           </div>
           {errors.termsAccepted && <p className="text-sm text-destructive">{errors.termsAccepted}</p>}
+        </div>
+      </Step>
+      
+      {/* KYC Step */}
+      <Step
+        title={t("steps.KYC")}
+        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
+        isActive={currentStep === 6}
+      >
+        <div className="space-y-6">
+          <div className="flex justify-between w-full items-center">
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input type="file" />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.frontCNI")}</CardFooter>
+            </Card>
+            <p>and</p>
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input type="file" />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.backCNI")} </CardFooter>
+            </Card>
+          </div>
         </div>
       </Step>
 
