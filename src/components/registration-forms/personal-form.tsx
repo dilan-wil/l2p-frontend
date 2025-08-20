@@ -12,6 +12,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { User, Phone, Briefcase, Users, CreditCard, PenTool, ChevronLeft, ChevronRight, KeyRound } from "lucide-react"
 import { useTranslations } from "@/lib/useTranslations"
+import SignatureField from "../signature"
 
 interface PersonalFormData {
   // Personal Information
@@ -33,8 +34,8 @@ interface PersonalFormData {
   maritalStatus: string
   children: number
   salary: number
-  frontCni: string
-  backCni: string
+  frontCNI: File | null
+  backCNI: File | null
 
   // Emergency Contacts
   contact1Name: string
@@ -127,8 +128,8 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     accountPlacement: false,
     signature: "",
     termsAccepted: false,
-    frontCni:'',
-    backCni:'',
+    frontCNI: null,
+    backCNI: null,
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
@@ -140,13 +141,13 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     { key: "professionalInfo",title: t("steps.professionalInfo"),icon: <Briefcase className="h-5 w-5 text-blue-600" />,},
     { key: "emergencyContacts",title: t("steps.emergencyContacts"),icon: <Users className="h-5 w-5 text-blue-600" />,},
     { key: "accountTypes", title: t("steps.accountTypes"), icon: <CreditCard className="h-5 w-5 text-blue-600" /> },
-    { key: "signature", title: t("steps.signature"), icon: <PenTool className="h-5 w-5 text-blue-600" /> },
     { key: "kyc verification", title: "Kyc verification", icon: <KeyRound className="h-5 w-5 text-blue-600" /> },
+    { key: "signature", title: t("steps.signature"), icon: <PenTool className="h-5 w-5 text-blue-600" /> },
   ]
 
   const totalSteps = steps.length
 
-  const handleInputChange = (field: keyof PersonalFormData, value: string | boolean | number) => {
+  const handleInputChange = (field: keyof PersonalFormData, value: string | boolean | number| File) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }))
@@ -598,6 +599,50 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
         </div>
       </Step>
 
+
+      {/* KYC Step */}
+      <Step
+        title={t("steps.KYC")}
+        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
+        isActive={currentStep === 6}
+      >
+        <div className="space-y-6">
+          <div className="flex justify-between w-full items-center">
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleInputChange("frontCNI", file);
+                    }
+                  }}
+                />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.frontCNI")}</CardFooter>
+            </Card>
+            <p>and</p>
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleInputChange("backCNI", file);
+                    }
+                  }}
+                />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.backCNI")} </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </Step>
+
       {/* Signature Step */}
       <Step
         title={t("steps.signature")}
@@ -608,13 +653,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
           <div>
             <Label>{t("fields.signature")}</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-              <canvas
-                ref={signatureRef}
-                width={400}
-                height={200}
-                className="border border-gray-200 rounded mx-auto cursor-crosshair"
-                style={{ touchAction: "none" }}
-              />
+                <SignatureField onChange={(data) => handleInputChange('signature', data)}/>
               <p className="text-sm text-gray-500 mt-2">{t("fields.signatureInstruction")}</p>
             </div>
           </div>
@@ -630,31 +669,6 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
             </Label>
           </div>
           {errors.termsAccepted && <p className="text-sm text-destructive">{errors.termsAccepted}</p>}
-        </div>
-      </Step>
-      
-      {/* KYC Step */}
-      <Step
-        title={t("steps.KYC")}
-        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
-        isActive={currentStep === 6}
-      >
-        <div className="space-y-6">
-          <div className="flex justify-between w-full items-center">
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input type="file" />
-              </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.frontCNI")}</CardFooter>
-            </Card>
-            <p>and</p>
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input type="file" />
-              </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.backCNI")} </CardFooter>
-            </Card>
-          </div>
         </div>
       </Step>
 

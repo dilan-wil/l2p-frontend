@@ -26,6 +26,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { useTranslations } from "@/lib/useTranslations";
+import SignatureField from "../signature";
 
 interface JointFormData {
   // Account Type
@@ -71,6 +72,13 @@ interface JointFormData {
   declaration: boolean;
   terms1Accepted: boolean;
   terms2Accepted: boolean;
+
+  //CNI
+  frontCNI1: File | null
+  frontCNI2: File | null
+  backCNI1: File | null
+  backCNI2: File | null
+
 }
 
 interface FormErrors {
@@ -149,6 +157,10 @@ export default function JointAccountForm({
     declaration: false,
     terms1Accepted: false,
     terms2Accepted: false,
+    frontCNI1: null,
+    frontCNI2: null,
+    backCNI1: null,
+    backCNI2: null
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -177,11 +189,6 @@ export default function JointAccountForm({
       icon: <CreditCard className="h-5 w-5 text-blue-600" />,
     },
     {
-      key: "signatures",
-      title: t("steps.signatures"),
-      icon: <PenTool className="h-5 w-5 text-blue-600" />,
-    },
-    {
       key: "kyc 1 verification",
       title: "Kyc 1 verification",
       icon: <KeyRound className="h-5 w-5 text-blue-600" />,
@@ -191,13 +198,18 @@ export default function JointAccountForm({
       title: "Kyc 2 verification",
       icon: <KeyRound className="h-5 w-5 text-blue-600" />,
     },
+    {
+      key: "signatures",
+      title: t("steps.signatures"),
+      icon: <PenTool className="h-5 w-5 text-blue-600" />,
+    },
   ];
 
   const totalSteps = steps.length;
 
   const handleInputChange = (
     field: keyof JointFormData,
-    value: string | boolean | number
+    value: string | boolean | number | File
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -712,6 +724,104 @@ export default function JointAccountForm({
         </div>
       </Step>
 
+      {/* kyc 1 step */}
+      <Step
+        title={t("steps.KYC")}
+        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
+        isActive={currentStep === 5}
+      >
+        <div className="space-y-6">
+          <div className="flex justify-between w-full items-center">
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleInputChange("frontCNI1", file);
+                    }
+                  }}
+                />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
+                {" "}
+                {t("fields.frontCNI")}
+              </CardFooter>
+            </Card>
+            <p>and</p>
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleInputChange("backCNI1", file);
+                    }
+                  }}
+                />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
+                {" "}
+                {t("fields.backCNI")}{" "}
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </Step>
+
+      {/* kyc 2 step*/}
+      <Step
+        title={t("steps.KYC")}
+        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
+        isActive={currentStep === 6}
+      >
+        <div className="space-y-6">
+          <div className="flex justify-between w-full items-center">
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleInputChange("frontCNI2", file);
+                    }
+                  }}
+                />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
+                {" "}
+                {t("fields.frontCNI")}
+              </CardFooter>
+            </Card>
+            <p>and</p>
+            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      handleInputChange("backCNI2", file);
+                    }
+                  }}
+                />
+              </CardContent>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
+                {" "}
+                {t("fields.backCNI")}{" "}
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </Step>
+
       {/* Signatures Step */}
       <Step
         title={t("steps.signatures")}
@@ -722,13 +832,7 @@ export default function JointAccountForm({
           <div>
             <Label>{t("fields.signature1")}</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-              <canvas
-                ref={signatureRef1}
-                width={400}
-                height={200}
-                className="border border-gray-200 rounded mx-auto cursor-crosshair"
-                style={{ touchAction: "none" }}
-              />
+                <SignatureField onChange={(data) => handleInputChange('signature1', data)}/>
               <p className="text-sm text-gray-500 mt-2">
                 {t("fields.signatureInstruction")}
               </p>
@@ -738,13 +842,7 @@ export default function JointAccountForm({
           <div>
             <Label>{t("fields.signature2")}</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-              <canvas
-                ref={signatureRef2}
-                width={400}
-                height={200}
-                className="border border-gray-200 rounded mx-auto cursor-crosshair"
-                style={{ touchAction: "none" }}
-              />
+              <SignatureField onChange={(data) => handleInputChange('signature2', data)}/>
               <p className="text-sm text-gray-500 mt-2">
                 {t("fields.signatureInstruction")}
               </p>
@@ -803,68 +901,6 @@ export default function JointAccountForm({
                 {errors.terms2Accepted}
               </p>
             )}
-          </div>
-        </div>
-      </Step>
-
-      {/* kyc 1 step */}
-      <Step
-        title={t("steps.KYC")}
-        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
-        isActive={currentStep === 5}
-      >
-        <div className="space-y-6">
-          <div className="flex justify-between w-full items-center">
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input type="file" />
-              </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
-                {" "}
-                {t("fields.frontCNI")}
-              </CardFooter>
-            </Card>
-            <p>and</p>
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input type="file" />
-              </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
-                {" "}
-                {t("fields.backCNI")}{" "}
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
-      </Step>
-
-      {/* kyc 2 step*/}
-      <Step
-        title={t("steps.KYC")}
-        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
-        isActive={currentStep === 6}
-      >
-        <div className="space-y-6">
-          <div className="flex justify-between w-full items-center">
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input type="file" />
-              </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
-                {" "}
-                {t("fields.frontCNI")}
-              </CardFooter>
-            </Card>
-            <p>and</p>
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input type="file" />
-              </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
-                {" "}
-                {t("fields.backCNI")}{" "}
-              </CardFooter>
-            </Card>
           </div>
         </div>
       </Step>
