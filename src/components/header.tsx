@@ -9,7 +9,7 @@ export function Header() {
   }
   const g = useTranslations()
 
-  const nextLocale = g('common.currentLanguage') === 'FR' ? 'en' : 'fr';
+  const nextLocale = g('common.currentLanguage') === 'EN' ? 'en' : 'fr';
   return (
     <header className="bg-primary text-primary-foreground py-6 px-6 shadow-sm">
       <div className="flex justify-between max-w-7xl mx-auto">

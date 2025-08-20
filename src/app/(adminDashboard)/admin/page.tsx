@@ -154,7 +154,7 @@ export default function Page() {
     }
 
     return(
-        <main className="p-6 w-full">
+        <main className="p-6 overflow-x-hidden">
             <div className="mb-8">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 KYC Management
@@ -191,8 +191,8 @@ export default function Page() {
                     <p className="text-gray-500">No pending verification requests at the moment.</p>
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-lg border border-gray-200">
-                    <Table>
+                  <div className="w-full rounded-lg border border-gray-200">
+                    <Table className="min-w-full table-fixed">
                       <TableHeader className="bg-gray-50">
                         <TableRow>
                           <TableHead className="font-semibold text-gray-700">User Details</TableHead>
@@ -203,7 +203,7 @@ export default function Page() {
                           <TableHead className="font-semibold text-gray-700">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
+                      <TableBody className="w-full">
                         {pendingUsers.map((user) => (
                           <TableRow key={user.id} className="hover:bg-blue-50/50 transition-colors">
                             <TableCell>

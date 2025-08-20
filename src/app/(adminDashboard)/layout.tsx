@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/header";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin-sidebar";
 import AdminDashboardNavbar from "@/components/admin-navbar";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,9 +19,16 @@ export default function AdminDashboardLayout({
   return (
     <SidebarProvider>
         <AdminSidebar />
-        <AdminDashboardNavbar>
+        <SidebarInset>
+        <header className="bg-background sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          fdf
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 overflow-x-hidden">
             {children}
-        </AdminDashboardNavbar>
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

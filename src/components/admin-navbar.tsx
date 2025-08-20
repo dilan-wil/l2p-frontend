@@ -33,12 +33,12 @@ export default function AdminDashboardNavbar({children} : {children : React.Reac
     document.cookie = `NEXT_LOCALE=${locale}; path=/`;
     window.location.reload(); // Force reload so `request.ts` picks up the new cookie
   }
-  const nextLocale = g('common.currentLanguage') === 'FR' ? 'en' : 'fr';
+
 
   return (
-    <div className="w-full">
-    <header className="w-full sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="w-full container flex h-16 items-center justify-end">
+    <div className="relative w-full overflow-x-hidden">
+    <header className="fixed top-0 left-64 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">      
+    <div className="container flex h-16 items-center justify-end">
 
         <div className="flex items-center gap-7 mr-4">
           <Button variant="ghost" size="icon" className="relative">
@@ -121,7 +121,13 @@ export default function AdminDashboardNavbar({children} : {children : React.Reac
         </div>
       </div>
     </header>
-    {children}
+
+    {/* spacer (same height as header) */}
+      <div className="h-16" />
+      
+    <main className="w-full overflow-x-hidden">
+        {children}
+    </main>
     </div>
   );
 }
