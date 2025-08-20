@@ -1,3 +1,4 @@
+"use client"
 import { useTranslations } from "@/lib/useTranslations";
 import { Button } from "./ui/button";
 
@@ -11,9 +12,9 @@ export function Header() {
   const nextLocale = g('common.currentLanguage') === 'FR' ? 'en' : 'fr';
   return (
     <header className="bg-primary text-primary-foreground py-6 px-6 shadow-sm">
-      <div className="max-w-7xl mx-auto">
+      <div className="flex justify-between max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold">L2P Finance</h1>
-        <Button onClick={() => changeLanguage(nextLocale)}>
+        <Button className="bg-white text-black cursor-pointer hover:bg-gray-600" onClick={() => changeLanguage(nextLocale)}>
           {g('common.currentLanguage')}
         </Button>
       </div>

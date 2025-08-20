@@ -33,6 +33,7 @@ export default function AdminDashboardNavbar({children} : {children : React.Reac
     document.cookie = `NEXT_LOCALE=${locale}; path=/`;
     window.location.reload(); // Force reload so `request.ts` picks up the new cookie
   }
+  const nextLocale = g('common.currentLanguage') === 'FR' ? 'en' : 'fr';
 
   return (
     <div className="w-full">
