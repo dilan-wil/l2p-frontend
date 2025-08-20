@@ -1,4 +1,4 @@
-import { BankRegistrationForm } from "@/components/registration-form"
+import { RegistrationForm } from "@/components/registration-form"
 
 export default function RegisterPage() {
   return (
@@ -8,7 +8,7 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-bold text-foreground mb-2">Ouverture de Compte</h1>
           <p className="text-muted-foreground">Choisissez le type de compte et remplissez les informations requises</p>
         </div>
-        <BankRegistrationForm />
+        <RegistrationForm />
       </div>
     </main>
   )

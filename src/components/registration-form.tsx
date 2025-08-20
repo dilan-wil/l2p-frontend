@@ -21,11 +21,12 @@ interface FormErrors {
   [key: string]: string
 }
 
-export function BankRegistrationForm() {
+export function RegistrationForm() {
   const [language, setLanguage] = useState<"fr" | "en">("fr")
   const [activeTab, setActiveTab] = useState<"personal" | "joint">("personal")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const t = useTranslations('registration')
+  const g = useTranslations()
 
   const handleTabChange = (value: string) => {
     setActiveTab(value as "personal" | "joint")
@@ -54,15 +55,20 @@ export function BankRegistrationForm() {
     }, 2000)
   }
 
+  function changeLanguage(locale: string) {
+    document.cookie = `NEXT_LOCALE=${locale}; path=/`;
+    window.location.reload(); // Force reload so `request.ts` picks up the new cookie
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">L2P Finance</h1>
-          <p className="text-gray-600">Ouverture de Compte Bancaire</p>
+          <p className="text-gray-600">{t('accountOpening')}</p>
         </div>
-        <Button variant="outline" onClick={() => setLanguage(language === "fr" ? "en" : "fr")} className="text-sm">
-          {t("navigation.languageSwitch")}
+        <Button variant="outline" onClick={() => changeLanguage(g('common.currentLanguage') === 'FR' ? 'en' : 'fr')} className="text-sm">
+          {g("common.currentLanguage")}
         </Button>
       </div>
 
