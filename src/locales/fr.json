@@ -8,9 +8,19 @@
     "optional": "Optionnel",
     "select": "Sélectionner",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "email": "Email",
+    "phone": "Numero de Téléphone",
+    "currentLanguage": "FR"
+  },
+  "homepage": {
+    "welcome": "Bienvenue à L2P",
+    "description": "Votre partenaire de confiance pour tous vos besoins financiers. Créez votre compte dès aujourd'hui.",
+    "getStarted": "Inscrivez Vous",
+    "signIn": "Se connecter"
   },
   "registration": {
+    "accountOpening": "Ouverture de Compte",
     "navigation": {
       "personalAccount": "Compte Personnel",
       "jointAccount": "Compte Joint",
@@ -113,5 +123,9 @@
       "divorced": "Divorcé(e)",
       "widowed": "Veuf/Veuve"
     }
+  },
+  "login": {
+    "welcome": "Bienvenue",
+    "description": "Entrez votre adresse mail ou numero de téléphone pour vous connecter"
   }
 }

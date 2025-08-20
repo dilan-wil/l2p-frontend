@@ -8,9 +8,19 @@
     "optional": "Optional",
     "select": "Select",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "email": "Email",
+    "phone": "Phone Number",
+    "currentLanguage": "EN"
+  },
+  "homepage": {
+    "welcome": "Welcome to L2P Platform",
+    "description": "Your trusted partner for all your financial needs. Get started by creating your account today.",
+    "getStarted": "Get Started",
+    "signIn": "Sign In"
   },
   "registration": {
+    "accountOpening": "Account Opening",
     "navigation": {
       "personalAccount": "Personal Account",
       "jointAccount": "Joint Account",
@@ -112,5 +122,13 @@
       "divorced": "Divorced",
       "widowed": "Widowed"
     }
+  },
+  "login": {
+    "welcome": "Welcome Back",
+    "description": "Enter your email or  phone number to sign in to your L2P Finance account",
+    "verifyOTP": "Verify OTP",
+    "resend OTP": "Resend OTP",
+    "enterOTP": "Enter the 6-digit code sent to ",
+    "codeOTP": "OTP Code"
   }
 }
