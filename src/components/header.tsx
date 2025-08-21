@@ -1,11 +1,19 @@
 "use client"
 import { useTranslations } from "@/lib/useTranslations";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 export function Header() {
+    const router = useRouter();
+
+  // function changeLanguage(locale: string) {
+  //   document.cookie = `NEXT_LOCALE=${locale}; path=/`;
+  //   window.location.reload(); // Force reload so `request.ts` picks up the new cookie
+  // }
+
   function changeLanguage(locale: string) {
     document.cookie = `NEXT_LOCALE=${locale}; path=/`;
-    window.location.reload(); // Force reload so `request.ts` picks up the new cookie
+    router.refresh(); // instead of window.location.reload()
   }
   const g = useTranslations()
 

@@ -1,53 +1,148 @@
+"use client"
+
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { Shield, Users } from "lucide-react"
+import {
+  BarChart3,
+  Calculator,
+  CreditCard,
+  FileCheck,
+  HelpCircle,
+  Home,
+  LogOut,
+  MessageSquare,
+  Settings,
+  Shield,
+  Users,
+} from "lucide-react"
 import { Badge } from "./ui/badge"
+import { Button } from "./ui/button"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 const AdminSidebar = () => {
+  const pathname = usePathname()
 
-    return (
-        <Sidebar className="border-r border-blue-100 bg-white/80 backdrop-blur-md">
-            <SidebarContent>
-                <div className="p-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                            <Shield className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                            <span className="font-bold text-lg text-gray-900">L2P Admin</span>
-                            <p className="text-sm text-gray-500">Management Portal</p>
-                        </div>
-                    </div>
-                </div>
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-gray-600 font-medium">Management</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton className="w-full bg-blue-50 text-blue-700 hover:bg-blue-100">
-                                    <Users className="w-4 h-4" />
-                                    <span>KYC Management</span>
-                                    <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700">
-                                        3
-                                    </Badge>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
-        </Sidebar>
-    )
+  const navigation = [
+    { name: "Dashboard", href: "/admin", icon: Home },
+    { name: "KYC Queue", href: "/admin/kyc", icon: FileCheck },
+    { name: "Loan Management", href: "/admin/loans", icon: CreditCard },
+    { name: "Reconciliation", href: "/admin/reconciliation", icon: Calculator },
+    { name: "Reports", href: "/admin/reports", icon: BarChart3 },
+    { name: "User Management", href: "/admin/users", icon: Users },
+    { name: "Notifications", href: "/admin/notifications", icon: MessageSquare },
+  ]
+
+  return (
+    <Sidebar collapsible="icon" className="border-r border-blue-100 bg-white/80 backdrop-blur-md">
+      <SidebarContent>
+        <SidebarHeader className="group-data-[collapsible=icon]:hidden">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <span className="font-bold text-lg text-gray-900">L2P Admin</span>
+                <p className="text-sm text-gray-500">Management Portal</p>
+              </div>
+            </div>
+          </div>
+        </SidebarHeader>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-gray-600 font-medium">Management</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigation.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton
+                      asChild
+                      className={`w-full ${
+                        isActive
+                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+                      }`}
+                    >
+                      <Link href={item.href}>
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                        {item.name === "KYC Queue" && (
+                          <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700">
+                            3
+                          </Badge>
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="group-data-[collapsible=icon]:hidden">
+        <div className="p-4 border-t border-sidebar-border space-y-1">
+          {/* Settings */}
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${
+              pathname === "/admin/settings"
+                ? "bg-gray-200 text-gray-900"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+            asChild
+          >
+            <Link href="/admin/settings">
+              <Settings className="h-4 w-4 mr-3" />
+              Settings
+            </Link>
+          </Button>
+
+          {/* Help */}
+          <Button
+            variant="ghost"
+            className={`w-full justify-start ${
+              pathname === "/help"
+                ? "bg-blue-600 text-white"
+                : "text-blue-600 hover:bg-blue-50"
+            }`}
+            asChild
+          >
+            <Link href="/help">
+              <HelpCircle className="h-4 w-4 mr-3" />
+              Help & Support
+            </Link>
+          </Button>
+
+          {/* Sign Out */}
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-red-600 hover:bg-red-50"
+            asChild
+          >
+            <Link href="/login">
+              <LogOut className="h-4 w-4 mr-3" />
+              Sign Out
+            </Link>
+          </Button>
+        </div>
+      </SidebarFooter>
+    </Sidebar>
+  )
 }
 
 export default AdminSidebar

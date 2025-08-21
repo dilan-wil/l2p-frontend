@@ -16,6 +16,7 @@ import PersonalAccountForm from "./registration-forms/personal-form"
 import JointAccountForm from "./registration-forms/joint-form"
 import { useTranslations } from "@/lib/useTranslations"
 import axios from 'axios'
+import { useRouter } from "next/navigation"
 
 interface FormErrors {
   [key: string]: string
@@ -27,7 +28,7 @@ export function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const t = useTranslations('registration')
   const g = useTranslations()
-
+  const router = useRouter()
   const handleTabChange = (value: string) => {
     setActiveTab(value as "personal" | "joint")
   }
@@ -57,9 +58,9 @@ export function RegistrationForm() {
 
   function changeLanguage(locale: string) {
     document.cookie = `NEXT_LOCALE=${locale}; path=/`;
-    window.location.reload(); // Force reload so `request.ts` picks up the new cookie
+    router.refresh(); // instead of window.location.reload()
   }
-  const nextLocale = g('common.currentLanguage') === 'FR' ? 'en' : 'fr';
+  const nextLocale = g('common.currentLanguage') === 'EN' ? 'en' : 'fr';
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white">

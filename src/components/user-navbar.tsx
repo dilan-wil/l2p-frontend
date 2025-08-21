@@ -16,7 +16,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
 
-export default function AdminDashboardNavbar() {
+export default function UserDashboardNavbar() {
   // const { reso } = useTheme();
   // Get initials for avatar
   const pathname = usePathname()

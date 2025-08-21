@@ -39,11 +39,7 @@
       "holder1Info": "Cotitulaire 1",
       "holder2Info": "Cotitulaire 2",
       "signatures": "Signatures",
-      "KYC":"Kyc verification",
-      "frontCNI": "recto de la CNI",
-      "backCNI": "verseau de la  CNI"
-
-
+      "KYC":"Kyc verification"
     },
     "fields": {
       "fullName": "Noms et Prénoms",
@@ -100,7 +96,9 @@
       "signature2": "Signature Cotitulaire 2",
       "declaration": "Je déclare que les informations fournies sont exactes",
       "terms1Accepted": "Cotitulaire 1 accepte les termes et conditions",
-      "terms2Accepted": "Cotitulaire 2 accepte les termes et conditions"
+      "terms2Accepted": "Cotitulaire 2 accepte les termes et conditions",
+      "frontCNI": "recto de la CNI",
+      "backCNI": "verseau de la  CNI"
     },
     "accountTypes": {
       "epargne": "Compte Épargne",
