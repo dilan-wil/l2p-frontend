@@ -124,6 +124,58 @@
   },
   "login": {
     "welcome": "Bienvenue",
-    "description": "Entrez votre adresse mail ou numero de téléphone pour vous connecter"
+    "description": "Entrez votre adresse mail ou numero de téléphone pour vous connecter",
+    "verifyOTP": "Verifiez OTP",
+    "resend OTP": "Renvoyez le code",
+    "enterOTP": "Entrez le code à 6 chiffres envoyé aux ",
+    "codeOTP": "Code OTP"
+  },
+  "sidebar": {
+    "client": {
+      "title": "Tableau de bord L2P",
+      "subtitle": "Portail Client",
+      "sections": {
+        "user_dashboard": "Tableau Utilisateur"
+      },
+      "navigation": {
+        "dashboard":  "Tableau de bord",
+        "account":  "Mes Comptes",
+        "savings":  "Épargnes",
+        "loans":  "Prets",
+        "transactions":  "Transactions",
+        "profile":  "Profil"
+      },
+      "footer": {
+        "settings": "Paramètres",
+        "help": "Aide & Support",
+        "sign_out": "Déconnexion",
+        "dropdown": {
+          "account": "Compte",
+          "notifications": "Notifications",
+          "logout": "Se déconnecter"
+        }
+      }
+    },
+    "admin": {
+      "title": "L2P Admin",
+      "subtitle": "Portail de Gestion",
+      "sections": {
+        "management": "Gestion"
+      },
+      "navigation": {
+        "dashboard":  "Tableau de bord",
+        "kyc":  "File d’attente KYC",
+        "loan":  "Gestion des prêts",
+        "reconciliation":  "Rapprochement",
+        "reports":  "Rapports",
+        "users":  "Gestion des utilisateurs",
+        "notification":  "Notifications"
+      },
+      "footer": {
+        "settings": "Paramètres",
+        "help": "Aide & Support",
+        "sign_out": "Déconnexion"
+      }
+    }
   }
 }

@@ -29,18 +29,19 @@ import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "@/lib/useTranslations"
 
 const AdminSidebar = () => {
   const pathname = usePathname()
-
+  const t = useTranslations('sidebar')
   const navigation = [
-    { name: "Dashboard", href: "/admin", icon: Home },
-    { name: "KYC Queue", href: "/admin/kyc", icon: FileCheck },
-    { name: "Loan Management", href: "/admin/loans", icon: CreditCard },
-    { name: "Reconciliation", href: "/admin/reconciliation", icon: Calculator },
-    { name: "Reports", href: "/admin/reports", icon: BarChart3 },
-    { name: "User Management", href: "/admin/users", icon: Users },
-    { name: "Notifications", href: "/admin/notifications", icon: MessageSquare },
+    { name: t('admin.navigation.dashboard'), href: "/admin", icon: Home },
+    { name: t('admin.navigation.kyc'), href: "/admin/kyc", icon: FileCheck },
+    { name: t('admin.navigation.loan'), href: "/admin/loans", icon: CreditCard },
+    { name: t('admin.navigation.reconciliation'), href: "/admin/reconciliation", icon: Calculator },
+    { name: t('admin.navigation.reports'), href: "/admin/reports", icon: BarChart3 },
+    { name: t('admin.navigation.users'), href: "/admin/users", icon: Users },
+    { name: t('admin.navigation.notification'), href: "/admin/notifications", icon: MessageSquare },
   ]
 
   return (
@@ -53,15 +54,15 @@ const AdminSidebar = () => {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <span className="font-bold text-lg text-gray-900">L2P Admin</span>
-                <p className="text-sm text-gray-500">Management Portal</p>
+                <span className="font-bold text-lg text-gray-900">{t('admin.title')}</span>
+                <p className="text-sm text-gray-500">{t('admin.subtitle')}</p>
               </div>
             </div>
           </div>
         </SidebarHeader>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-600 font-medium">Management</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-gray-600 font-medium">{t('admin.sections.management')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => {
@@ -108,7 +109,7 @@ const AdminSidebar = () => {
           >
             <Link href="/admin/settings">
               <Settings className="h-4 w-4 mr-3" />
-              Settings
+              {t('admin.footer.settings')}
             </Link>
           </Button>
 
@@ -124,7 +125,7 @@ const AdminSidebar = () => {
           >
             <Link href="/help">
               <HelpCircle className="h-4 w-4 mr-3" />
-              Help & Support
+              {t('admin.footer.help')}
             </Link>
           </Button>
 
@@ -136,7 +137,7 @@ const AdminSidebar = () => {
           >
             <Link href="/login">
               <LogOut className="h-4 w-4 mr-3" />
-              Sign Out
+              {t('admin.footer.sign_out')}
             </Link>
           </Button>
         </div>

@@ -39,17 +39,19 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { useTranslations } from "@/lib/useTranslations"
 
 const ClientSidebar = () => {
     const pathname = usePathname()
     const { isMobile } = useSidebar()
-    
+    const t = useTranslations('sidebar')
     const navigation = [
-        { name: "Dashboard", href: "/dashboard", icon: Home },
-        { name: "Savings", href: "/dashboard/savings", icon: PiggyBank },
-        { name: "Loans", href: "/dashboard/loans", icon: CreditCard },
-        { name: "Transactions", href: "/dashboard/transactions", icon: History },
-        { name: "Profile", href: "/dashboard/profile", icon: User },
+        { name: t('client.navigation.dashboard'), href: "/dashboard", icon: Home },
+        { name: t('client.navigation.account'), href: "/dashboard/accounts", icon: Home },
+        { name: t('client.navigation.savings'), href: "/dashboard/savings", icon: PiggyBank },
+        { name: t('client.navigation.loans'), href: "/dashboard/loans", icon: CreditCard },
+        { name: t('client.navigation.transactions'), href: "/dashboard/transactions", icon: History },
+        { name: t('client.navigation.profile'), href: "/dashboard/profile", icon: User },
     ]
 
     const user= {
@@ -68,15 +70,15 @@ const ClientSidebar = () => {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <span className="font-bold text-lg text-gray-900">L2P Admin</span>
-                <p className="text-sm text-gray-500">Management Portal</p>
+                <span className="font-bold text-lg text-gray-900">{t('client.title')}</span>
+                <p className="text-sm text-gray-500">{t('client.subtitle')}</p>
               </div>
             </div>
           </div>
         </SidebarHeader>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-600 font-medium">Management</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-gray-600 font-medium">{t('client.sections.user_dashboard')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => {
@@ -121,9 +123,9 @@ const ClientSidebar = () => {
             }`}
             asChild
           >
-            <Link href="/admin/settings">
+            <Link href="/dashboard/settings">
               <Settings className="h-4 w-4 mr-3" />
-              Settings
+              {t('client.footer.settings')}
             </Link>
           </Button>
 
@@ -131,15 +133,15 @@ const ClientSidebar = () => {
           <Button
             variant="ghost"
             className={`w-full justify-start ${
-              pathname === "/help"
+              pathname === "/dashboard/help"
                 ? "bg-blue-600 text-white"
                 : "text-blue-600 hover:bg-blue-50"
             }`}
             asChild
           >
-            <Link href="/help">
+            <Link href="/dashboard/help">
               <HelpCircle className="h-4 w-4 mr-3" />
-              Help & Support
+              {t('client.footer.help')}
             </Link>
           </Button>
 
@@ -151,7 +153,7 @@ const ClientSidebar = () => {
           >
             <Link href="/login">
               <LogOut className="h-4 w-4 mr-3" />
-              Sign Out
+              {t('client.footer.sign_out')}
             </Link>
           </Button>
         </div>
@@ -200,17 +202,17 @@ const ClientSidebar = () => {
                     <DropdownMenuGroup>
                     <DropdownMenuItem>
                         <UserCircle />
-                        Account
+                        {t('client.footer.dropdown.account')}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                         <Bell />
-                        Notifications
+                        {t('client.footer.dropdown.notifications')}
                     </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                     <LogOutIcon />
-                    Log out
+                    {t('client.footer.dropdown.logout')}
                     </DropdownMenuItem>
                 </DropdownMenuContent>
                 </DropdownMenu>

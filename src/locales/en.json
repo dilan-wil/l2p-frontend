@@ -129,5 +129,53 @@
     "resend OTP": "Resend OTP",
     "enterOTP": "Enter the 6-digit code sent to ",
     "codeOTP": "OTP Code"
+  },
+  "sidebar": {
+    "client": {
+      "title": "L2P Dashboard",
+      "subtitle": "Client Portal",
+      "sections": {
+        "user_dashboard": "User Dashboard"
+      },
+      "navigation": {
+        "dashboard":  "Dashboard",
+        "account":  "My accounts",
+        "savings":  "Savings",
+        "loans":  "Loans",
+        "transactions":  "Transactions",
+        "profile":  "Profile"
+      },
+      "footer": {
+        "settings": "Settings",
+        "help": "Help & Support",
+        "sign_out": "Sign Out",
+        "dropdown": {
+          "account": "Account",
+          "notifications": "Notifications",
+          "logout": "Log out"
+        }
+      }
+    },
+    "admin": {
+      "title": "L2P Admin",
+      "subtitle": "Management Portal",
+      "sections": {
+        "management": "Management"
+      },
+      "navigation": {
+        "dashboard":  "Dashboard",
+        "kyc":  "KYC Queue",
+        "loan":  "Loan Management",
+        "reconciliation":  "Reconciliation",
+        "reports":  "Reports",
+        "users":  "User Management",
+        "notification":  "Notifications"
+      },
+      "footer": {
+        "settings": "Settings",
+        "help": "Help & Support",
+        "sign_out": "Sign Out"
+      }
+    }
   }
 }
