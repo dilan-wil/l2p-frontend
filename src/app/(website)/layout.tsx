@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/header";
+import { Poppins } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["400", "600", "700"], 
+  variable: "--font-poppins", // optionnel si tu veux l'utiliser avec Tailwind
 });
 
 export const metadata: Metadata = {
@@ -24,10 +30,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/* ${geistMono.variable} 
+      ${geistSans.variable}  */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full`}
-      >
-        <Header />
+        className={`
+          ${poppins.variable} antialiased min-h-full relative`}
+          >
+        {/* <Header /> */}
         {children}
       </body>
     </html>

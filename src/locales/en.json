@@ -112,5 +112,107 @@
       "divorced": "Divorced",
       "widowed": "Widowed"
     }
+  },
+  "homePage": {
+    "nav": {
+      "home": "Home",
+      "personalAccounts": "Personal Accounts",
+      "jointAccounts": "Joint Accounts",
+      "accountTypes": "Account Types",
+      "moreOptions": "More Options",
+      "signUp": "Sign Up",
+      "login": "Login"
+    },
+    "hero": {
+      "title": "Your banking experience, simplified and secure",
+      "subtitle": "Discover the freedom to manage your finances through our innovative banking services. Whether you need a personal or joint account, we provide the tools you need to control your money."
+    },
+    "featuresIntro": {
+      "highlight": "Empower",
+      "title": "Discover our innovative banking features",
+      "description": "Enjoy a smooth banking experience with our user-friendly application. Manage your personal and joint accounts easily, tailored to your needs."
+    },
+    "features": {
+      "personalAccounts": {
+        "title": "Personal accounts for your individual needs",
+        "description": "Enjoy full control over your finances."
+      },
+      "jointAccounts": {
+        "title": "Joint accounts for your shared financial goals",
+        "description": "Collaborate with others while managing your common funds."
+      },
+      "restrictions": {
+        "title": "Flexible restrictions for account management",
+        "description": "Set custom permissions for joint account holders."
+      }
+    },
+    "ctaBlock": {
+      "highlight": "Empower",
+      "title": "Unlock your full banking potential with us",
+      "description": "Enjoy seamless banking at your fingertips. Our online services provide convenience, security, and flexibility for all your financial needs.",
+      "points": [
+        "Manage your finances anytime, anywhere.",
+        "Enjoy a personalized banking experience.",
+        "Stay safe with our advanced security features."
+      ]
+    },
+    "solutions": {
+      "title": "Discover our complete banking solutions tailored to your needs",
+      "options": {
+        "flexible": {
+          "title": "Flexible account options, personal and joint",
+          "description": "Experience smooth banking with our simple personal and joint accounts.",
+          "link": "Learn more"
+        },
+        "security": {
+          "title": "Secure transactions with advanced encryption",
+          "description": "Your security is our priority, ensuring safe and protected operations.",
+          "link": "Sign up"
+        },
+        "support": {
+          "title": "24/7 customer support",
+          "description": "Our dedicated team is available anytime to help you.",
+          "link": "Contact"
+        }
+      }
+    },
+    "join": {
+      "title": "Join us for financial freedom",
+      "description": "Create your account today and explore a banking universe tailored to your needs."
+    },
+    "footer": {
+      "quickLinks": {
+        "title": "Quick links",
+        "about": "About",
+        "contact": "Contact us",
+        "support": "Support Center",
+        "careers": "Careers",
+        "blog": "Blog"
+      },
+      "resources": {
+        "title": "Resources",
+        "faq": "FAQs",
+        "guide": "User Guide",
+        "forum": "Community Forum",
+        "feedback": "Feedback",
+        "press": "Press Kit"
+      },
+      "updates": {
+        "title": "Stay informed",
+        "newsletter": "Newsletters",
+        "offers": "Exclusive offers",
+        "updates": "Product updates",
+        "events": "Events",
+        "alerts": "Special alerts"
+      },
+      "subscribe": {
+        "title": "Subscribe",
+        "description": "Join our newsletter to receive the latest news and exclusive offers.",
+        "placeholder": "Enter your email",
+        "button": "Join",
+        "consent": "By subscribing, you accept our privacy policy and agree to receive updates."
+      }
+    }
   }
 }
+  

@@ -113,5 +113,107 @@
       "divorced": "Divorcé(e)",
       "widowed": "Veuf/Veuve"
     }
+  },
+  "homePage": {
+    "nav": {
+      "home": "Accueil",
+      "personalAccounts": "Comptes personnels",
+      "jointAccounts": "Comptes joints",
+      "accountTypes": "Types de comptes",
+      "moreOptions": "Plus d'options",
+      "signUp": "S’inscrire",
+      "login": "Se connecter"
+    },
+    "hero": {
+      "title": "Votre expérience bancaire, simplifiée et sécurisée",
+      "subtitle": "Découvrez la liberté de gérer vos finances grâce à nos services bancaires innovants. Que vous ayez besoin d’un compte personnel ou joint, nous mettons à votre disposition les outils nécessaires pour contrôler votre argent."
+    },
+    "featuresIntro": {
+      "highlight": "Renforcez",
+      "title": "Découvrez nos fonctionnalités bancaires innovantes",
+      "description": "Profitez d’une expérience bancaire fluide grâce à notre application conviviale. Gérez vos comptes personnels et joints facilement, adaptés à vos besoins."
+    },
+    "features": {
+      "personalAccounts": {
+        "title": "Comptes personnels pour vos besoins individuels",
+        "description": "Profitez d’un contrôle total sur vos finances."
+      },
+      "jointAccounts": {
+        "title": "Comptes joints pour vos objectifs financiers partagés",
+        "description": "Collaborez avec d’autres tout en gérant vos fonds communs."
+      },
+      "restrictions": {
+        "title": "Restrictions flexibles pour la gestion des comptes",
+        "description": "Définissez des permissions personnalisées pour les titulaires de comptes joints."
+      }
+    },
+    "ctaBlock": {
+      "highlight": "Renforcez",
+      "title": "Libérez tout votre potentiel bancaire avec nous",
+      "description": "Profitez d’une banque fluide à portée de main. Nos services en ligne offrent commodité, sécurité et flexibilité pour tous vos besoins financiers.",
+      "points": [
+        "Gérez vos finances à tout moment, où que vous soyez.",
+        "Profitez d’une expérience bancaire personnalisée.",
+        "Restez en sécurité grâce à nos fonctionnalités de protection avancées."
+      ]
+    },
+    "solutions": {
+      "title": "Découvrez nos solutions bancaires complètes adaptées à vos besoins",
+      "options": {
+        "flexible": {
+          "title": "Options de compte flexibles, personnel et joint",
+          "description": "Découvrez une expérience bancaire fluide grâce à nos comptes personnels et joints simples à utiliser.",
+          "link": "En savoir plus"
+        },
+        "security": {
+          "title": "Transactions sécurisées avec chiffrement avancé",
+          "description": "Votre sécurité est notre priorité, garantissant des opérations sûres et protégées.",
+          "link": "S’inscrire"
+        },
+        "support": {
+          "title": "Assistance client 24h/24 et 7j/7",
+          "description": "Notre équipe dédiée est disponible à tout moment pour vous aider.",
+          "link": "Contact"
+        }
+      }
+    },
+    "join": {
+      "title": "Rejoignez-nous pour une liberté financière",
+      "description": "Créez votre compte dès aujourd’hui et explorez un univers bancaire adapté à vos besoins."
+    },
+    "footer": {
+      "quickLinks": {
+        "title": "Liens rapides",
+        "about": "À propos",
+        "contact": "Contactez-nous",
+        "support": "Centre de support",
+        "careers": "Carrières",
+        "blog": "Blog"
+      },
+      "resources": {
+        "title": "Ressources",
+        "faq": "FAQs",
+        "guide": "Guide utilisateur",
+        "forum": "Forum communautaire",
+        "feedback": "Retour d’expérience",
+        "press": "Dossier de presse"
+      },
+      "updates": {
+        "title": "Restez informés",
+        "newsletter": "Newsletters",
+        "offers": "Offres exclusives",
+        "updates": "Mises à jour produits",
+        "events": "Évènements",
+        "alerts": "Alertes spéciales"
+      },
+      "subscribe": {
+        "title": "S’abonner",
+        "description": "Rejoignez notre newsletter pour recevoir les dernières nouveautés et offres exclusives.",
+        "placeholder": "Entrez votre email",
+        "button": "Rejoindre",
+        "consent": "En vous abonnant, vous acceptez notre politique de confidentialité et consentez à recevoir des mises à jour."
+      }
+    }
   }
 }
+  
