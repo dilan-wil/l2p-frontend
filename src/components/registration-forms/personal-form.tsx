@@ -13,10 +13,13 @@ import { Progress } from "@/components/ui/progress"
 import { User, Phone, Briefcase, Users, CreditCard, PenTool, ChevronLeft, ChevronRight, KeyRound } from "lucide-react"
 import { useTranslations } from "@/lib/useTranslations"
 import SignatureField from "../signature"
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
+import { storage } from "@/functions/firebase"
 
 interface PersonalFormData {
   // Personal Information
-  fullName: string
+  firstName: string
+  secondName: string
   birthDate: string
   birthPlace: string
   nationality: string
@@ -34,8 +37,8 @@ interface PersonalFormData {
   maritalStatus: string
   children: number
   salary: number
-  frontCNI: File | null
-  backCNI: File | null
+  frontCNI: File | null | string
+  backCNI: File | null | string
 
   // Emergency Contacts
   contact1Name: string
@@ -95,7 +98,8 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     const g = useTranslations()
   
   const [formData, setFormData] = useState<PersonalFormData>({
-    fullName: "",
+    firstName: "",
+    secondName: "",
     birthDate: "",
     birthPlace: "",
     nationality: "",
@@ -141,7 +145,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     { key: "professionalInfo",title: t("steps.professionalInfo"),icon: <Briefcase className="h-5 w-5 text-blue-600" />,},
     { key: "emergencyContacts",title: t("steps.emergencyContacts"),icon: <Users className="h-5 w-5 text-blue-600" />,},
     { key: "accountTypes", title: t("steps.accountTypes"), icon: <CreditCard className="h-5 w-5 text-blue-600" /> },
-    { key: "kyc verification", title: "Kyc verification", icon: <KeyRound className="h-5 w-5 text-blue-600" /> },
+    { key: "kycVerification", title: "Kyc verification", icon: <KeyRound className="h-5 w-5 text-blue-600" /> },
     { key: "signature", title: t("steps.signature"), icon: <PenTool className="h-5 w-5 text-blue-600" /> },
   ]
 
@@ -159,7 +163,8 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
 
     switch (currentStep) {
       case 0: // Personal Information
-        if (!formData.fullName.trim()) newErrors.fullName = "Noms et Prénoms requis"
+        if (!formData.firstName.trim()) newErrors.fullName = "Prénoms requis"
+        if (!formData.secondName.trim()) newErrors.fullName = "Noms requis"
         if (!formData.birthDate) newErrors.birthDate = "Date de naissance requise"
         if (!formData.birthPlace.trim()) newErrors.birthPlace = "Lieu de naissance requis"
         if (!formData.nationality.trim()) newErrors.nationality = "Nationalité requise"
@@ -174,15 +179,24 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
         if (!formData.address.trim()) newErrors.address = "Adresse requise"
         if (!formData.city.trim()) newErrors.city = "Ville/Quartier requis"
         break
-      case 2: // Professional Information
-        if (!formData.profession.trim()) newErrors.profession = "Profession requise"
+      case 5:
+        if (
+          !formData?.frontCNI ||
+          (typeof formData.frontCNI === "string" && !formData.frontCNI.trim())
+        ) {
+          newErrors.frontCNI = "Document d'identité requis"
+        }
+
+        if (
+          !formData?.backCNI ||
+          (typeof formData.backCNI === "string" && !formData.backCNI.trim())
+        ) {
+          newErrors.backCNI = "Document d'identité requis"
+        }
         break
-      case 5: // Signature
+      case 6: // Signature
         if (!formData.termsAccepted) newErrors.termsAccepted = "Vous devez accepter les conditions"
         break
-      // case 6: // Kyc verification
-      //   if (!formData.termsAccepted) newErrors.termsAccepted = "Vous devez accepter les conditions"
-      //   break
     }
 
     setErrors(newErrors)
@@ -190,6 +204,8 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
   }
 
   const nextStep = () => {
+    console.log(currentStep)
+    console.log(totalSteps)
     if (validateCurrentStep() && currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1)
     }
@@ -201,12 +217,38 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (validateCurrentStep()) {
-      onSubmit(formData)
+    console.log(currentStep)
+    console.log(formData)
+    if (!validateCurrentStep()) return
+
+    try {
+      // clone to avoid mutating original directly
+      const updatedFormData = { ...formData }
+
+      // upload front cni if it's a File
+      if (formData.frontCNI instanceof File) {
+        const frontRef = ref(storage, `cni/${Date.now()}-front-${formData.frontCNI.name}`)
+        await uploadBytes(frontRef, formData.frontCNI)
+        updatedFormData.frontCNI = await getDownloadURL(frontRef)
+      }
+
+      // upload back cni if it's a File
+      if (formData.backCNI instanceof File) {
+        const backRef = ref(storage, `cni/${Date.now()}-back-${formData.backCNI.name}`)
+        await uploadBytes(backRef, formData.backCNI)
+        updatedFormData.backCNI = await getDownloadURL(backRef)
+      }
+
+      // finally call onSubmit with updated URLs
+      onSubmit(updatedFormData)
+
+    } catch (error) {
+      console.error("Error uploading files:", error)
     }
   }
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -228,14 +270,25 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="fullName">{t("fields.fullName")} *</Label>
+            <Label htmlFor="firstName">{t("fields.firstName")} *</Label>
             <Input
               id="fullName"
-              value={formData.fullName}
-              onChange={(e) => handleInputChange("fullName", e.target.value)}
-              className={errors.fullName ? "border-destructive" : ""}
+              value={formData.firstName}
+              onChange={(e) => handleInputChange("firstName", e.target.value)}
+              className={errors.firstName ? "border-destructive" : ""}
             />
-            {errors.fullName && <p className="text-sm text-destructive mt-1">{errors.fullName}</p>}
+            {errors.firstName && <p className="text-sm text-destructive mt-1">{errors.firstName}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="secondName">{t("fields.secondName")} *</Label>
+            <Input
+              id="fullName"
+              value={formData.secondName}
+              onChange={(e) => handleInputChange("secondName", e.target.value)}
+              className={errors.secondName ? "border-destructive" : ""}
+            />
+            {errors.secondName && <p className="text-sm text-destructive mt-1">{errors.secondName}</p>}
           </div>
 
           <div>
@@ -604,7 +657,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       <Step
         title={t("steps.KYC")}
         icon={<KeyRound className="h-5 w-5 text-blue-600" />}
-        isActive={currentStep === 6}
+        isActive={currentStep === 5}
       >
         <div className="space-y-6">
           <div className="flex justify-between w-full items-center">
@@ -647,7 +700,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       <Step
         title={t("steps.signature")}
         icon={<PenTool className="h-5 w-5 text-blue-600" />}
-        isActive={currentStep === 5}
+        isActive={currentStep === 6}
       >
         <div className="space-y-6">
           <div>
@@ -685,12 +738,14 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
           {t("navigation.previous")}
         </Button>
 
-        {currentStep < totalSteps - 1 ? (
+        {currentStep < totalSteps - 1 && (
           <Button type="button" onClick={nextStep} className="flex items-center gap-2">
             {t("navigation.next")}
             <ChevronRight className="h-4 w-4" />
           </Button>
-        ) : (
+        )}
+        
+        {currentStep === totalSteps - 1 && (
           <Button type="submit" disabled={isSubmitting} className="flex items-center gap-2">
             {isSubmitting ? g("common.submitting") : g("common.submit")}
           </Button>

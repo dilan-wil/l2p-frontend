@@ -17,6 +17,7 @@ import JointAccountForm from "./registration-forms/joint-form"
 import { useTranslations } from "@/lib/useTranslations"
 import axios from 'axios'
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 interface FormErrors {
   [key: string]: string
@@ -36,14 +37,16 @@ export function RegistrationForm() {
   const handlePersonalSubmit = async (data: any) => {
     setIsSubmitting(true)
     // console.log("Personal Account Registration:", data)
-    await axios.post('https://l2p-finance-backend.onrender.com/auth',data)
-    .then(res => console.log('andy est le best'))
-    .then(res => console.log('reponse is :',res))
-    .catch(err => console.error(" votre erreure est ",err))
-    setTimeout(() => {
+    try {
+      await axios.post('https://l2p-cooperative-backend.onrender.com/auth/signup', {...data, password: "microphone"})
+      .then(res => console.log('reponse is :',res))
+      .catch(err => console.error(" votre erreure est ",err))
+      toast.success("Inscription réussie! Votre demande a été soumise.")
+    } catch(error){
+      console.log(error)
+    } finally{
       setIsSubmitting(false)
-      alert("Inscription réussie! Votre demande a été soumise.")
-    }, 2000)
+    } 
   }
 
   const handleJointSubmit = async (data: any) => {

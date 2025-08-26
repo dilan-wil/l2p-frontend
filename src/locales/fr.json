@@ -43,6 +43,8 @@
     },
     "fields": {
       "fullName": "Noms et Prénoms",
+      "firstName": "Prénoms",
+      "secondName": "Noms",
       "birthDate": "Date de Naissance",
       "birthPlace": "Lieu de Naissance",
       "nationality": "Nationalité",
