@@ -55,6 +55,7 @@
       "idDate": "Issue Date",
       "phone": "Phone",
       "email": "Email",
+      "password": "Password",
       "address": "Address",
       "city": "City/Neighborhood",
       "profession": "Profession",
@@ -96,6 +97,13 @@
       "holder2IdDate": "Co-holder 2 Issue Date",
       "signature1": "Co-holder 1 Signature",
       "signature2": "Co-holder 2 Signature",
+      "documentType": "Document Type",
+      "documentTypePlaceholder": "Choose your document",
+      "documents": {
+        "cni": "ID Card",
+        "passport": "Passport",
+        "residentCard": "Resident Card"
+      },
       "declaration": "I declare that the information provided is accurate",
       "terms1Accepted": "Co-holder 1 accepts the terms and conditions",
       "terms2Accepted": "Co-holder 2 accepts the terms and conditions",

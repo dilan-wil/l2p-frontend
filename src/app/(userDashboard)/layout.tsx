@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { usePathname } from "next/navigation";
 import UserDashboardNavbar from "@/components/user-navbar";
 import ClientSidebar from "@/components/user-sidebar";
+import ProtectedRoute from "@/components/protected-route";
 
 
 export default function AdminDashboardLayout({
@@ -25,7 +26,9 @@ export default function AdminDashboardLayout({
         <SidebarInset>
         <UserDashboardNavbar />
         <div className="flex flex-1 flex-col gap-4 p-4 overflow-x-hidden">
-            {children}
+            <ProtectedRoute allowedRoles={["USER"]}>
+              {children}
+            </ProtectedRoute>
         </div>
       </SidebarInset>
     </SidebarProvider>

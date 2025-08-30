@@ -38,7 +38,7 @@ export function RegistrationForm() {
     setIsSubmitting(true)
     // console.log("Personal Account Registration:", data)
     try {
-      await axios.post('https://l2p-cooperative-backend.onrender.com/auth/signup', {...data, password: "microphone"})
+      await axios.post('https://l2p-cooperative-backend.onrender.com/auth/signup', data)
       .then(res => console.log('reponse is :',res))
       .catch(err => console.error(" votre erreure est ",err))
       toast.success("Inscription réussie! Votre demande a été soumise.")
