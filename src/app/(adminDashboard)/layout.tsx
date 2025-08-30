@@ -12,6 +12,8 @@ import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { usePathname } from "next/navigation";
+import ProtectedRoute from "@/components/protected-route";
+import { AuthProvider } from "@/hooks/auth-context";
 
 
 export default function AdminDashboardLayout({
@@ -34,7 +36,9 @@ export default function AdminDashboardLayout({
         <SidebarInset>
         <AdminDashboardNavbar />
         <div className="flex flex-1 flex-col gap-4 p-4 overflow-x-hidden">
-            {children}
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              {children}
+            </ProtectedRoute>
         </div>
       </SidebarInset>
     </SidebarProvider>

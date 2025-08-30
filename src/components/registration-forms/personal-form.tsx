@@ -15,11 +15,12 @@ import { useTranslations } from "@/lib/useTranslations"
 import SignatureField from "../signature"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 import { storage } from "@/functions/firebase"
+import MediaUploader from "../media-uploader"
 
 interface PersonalFormData {
   // Personal Information
   firstName: string
-  secondName: string
+  lastName: string
   birthDate: string
   birthPlace: string
   nationality: string
@@ -30,6 +31,7 @@ interface PersonalFormData {
   idDate: string
   phone: string
   email: string
+  password: string,
   address: string
   city: string
   profession: string
@@ -37,8 +39,9 @@ interface PersonalFormData {
   maritalStatus: string
   children: number
   salary: number
-  frontCNI: File | null | string
-  backCNI: File | null | string
+  documentType: string
+  frontImage: File | null | string
+  backImage: File | null | string
 
   // Emergency Contacts
   contact1Name: string
@@ -99,7 +102,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
   
   const [formData, setFormData] = useState<PersonalFormData>({
     firstName: "",
-    secondName: "",
+    lastName: "",
     birthDate: "",
     birthPlace: "",
     nationality: "",
@@ -110,6 +113,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     idDate: "",
     phone: "",
     email: "",
+    password: "",
     address: "",
     city: "",
     profession: "",
@@ -132,8 +136,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     accountPlacement: false,
     signature: "",
     termsAccepted: false,
-    frontCNI: null,
-    backCNI: null,
+    frontImage: null,
+    backImage: null,
+    documentType: ""
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
@@ -164,7 +169,7 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     switch (currentStep) {
       case 0: // Personal Information
         if (!formData.firstName.trim()) newErrors.fullName = "Prénoms requis"
-        if (!formData.secondName.trim()) newErrors.fullName = "Noms requis"
+        if (!formData.lastName.trim()) newErrors.fullName = "Noms requis"
         if (!formData.birthDate) newErrors.birthDate = "Date de naissance requise"
         if (!formData.birthPlace.trim()) newErrors.birthPlace = "Lieu de naissance requis"
         if (!formData.nationality.trim()) newErrors.nationality = "Nationalité requise"
@@ -176,22 +181,23 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       case 1: // Contact Information
         if (!formData.phone.trim()) newErrors.phone = "Téléphone requis"
         if (!formData.email.trim()) newErrors.email = "Email requis"
+        if (!formData.password.trim()) newErrors.password = "Mot de passe requis"
         if (!formData.address.trim()) newErrors.address = "Adresse requise"
         if (!formData.city.trim()) newErrors.city = "Ville/Quartier requis"
         break
       case 5:
         if (
-          !formData?.frontCNI ||
-          (typeof formData.frontCNI === "string" && !formData.frontCNI.trim())
+          !formData?.frontImage ||
+          (typeof formData.frontImage === "string" && !formData.frontImage.trim())
         ) {
-          newErrors.frontCNI = "Document d'identité requis"
+          newErrors.frontImage = "Document d'identité requis"
         }
 
         if (
-          !formData?.backCNI ||
-          (typeof formData.backCNI === "string" && !formData.backCNI.trim())
+          !formData?.backImage ||
+          (typeof formData.backImage === "string" && !formData.backImage.trim())
         ) {
-          newErrors.backCNI = "Document d'identité requis"
+          newErrors.backImage = "Document d'identité requis"
         }
         break
       case 6: // Signature
@@ -228,17 +234,17 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       const updatedFormData = { ...formData }
 
       // upload front cni if it's a File
-      if (formData.frontCNI instanceof File) {
-        const frontRef = ref(storage, `cni/${Date.now()}-front-${formData.frontCNI.name}`)
-        await uploadBytes(frontRef, formData.frontCNI)
-        updatedFormData.frontCNI = await getDownloadURL(frontRef)
+      if (formData.frontImage instanceof File) {
+        const frontRef = ref(storage, `cni/${Date.now()}-front-${formData.frontImage.name}`)
+        await uploadBytes(frontRef, formData.frontImage)
+        updatedFormData.frontImage = await getDownloadURL(frontRef)
       }
 
       // upload back cni if it's a File
-      if (formData.backCNI instanceof File) {
-        const backRef = ref(storage, `cni/${Date.now()}-back-${formData.backCNI.name}`)
-        await uploadBytes(backRef, formData.backCNI)
-        updatedFormData.backCNI = await getDownloadURL(backRef)
+      if (formData.backImage instanceof File) {
+        const backRef = ref(storage, `cni/${Date.now()}-back-${formData.backImage.name}`)
+        await uploadBytes(backRef, formData.backImage)
+        updatedFormData.backImage = await getDownloadURL(backRef)
       }
 
       // finally call onSubmit with updated URLs
@@ -284,8 +290,8 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
             <Label htmlFor="secondName">{t("fields.secondName")} *</Label>
             <Input
               id="fullName"
-              value={formData.secondName}
-              onChange={(e) => handleInputChange("secondName", e.target.value)}
+              value={formData.lastName}
+              onChange={(e) => handleInputChange("lastName", e.target.value)}
               className={errors.secondName ? "border-destructive" : ""}
             />
             {errors.secondName && <p className="text-sm text-destructive mt-1">{errors.secondName}</p>}
@@ -415,6 +421,18 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               className={errors.email ? "border-destructive" : ""}
             />
             {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="password">{t("fields.password")} *</Label>
+            <Input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) => handleInputChange("password", e.target.value)}
+              className={errors.password ? "border-destructive" : ""}
+            />
+            {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
           </div>
 
           <div className="md:col-span-2">
@@ -655,42 +673,58 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
 
       {/* KYC Step */}
       <Step
-        title={t("steps.KYC")}
-        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
-        isActive={currentStep === 5}
+      title={t("steps.KYC")}
+      icon={<KeyRound className="h-5 w-5 text-blue-600" />}
+      isActive={currentStep === 5}
       >
         <div className="space-y-6">
-          <div className="flex justify-between w-full items-center">
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      handleInputChange("frontCNI", file);
-                    }
-                  }}
+          {/* Document type select */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t("fields.documentType")}
+            </label>
+            <Select
+              onValueChange={(value) => handleInputChange("documentType", value)}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder={t("fields.documentTypePlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CNI">{t("fields.documents.cni")}</SelectItem>
+                <SelectItem value="passport">{t("fields.documents.passport")}</SelectItem>
+                <SelectItem value="resident">{t("fields.documents.residentCard")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Front & Back uploaders */}
+          <div className="flex flex-col md:flex-row justify-between w-full items-center gap-4">
+            {/* Front */}
+            <Card className="w-full md:w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="w-full m-0 rounded-lg">
+                <MediaUploader
+                  setMedia={(url) => handleInputChange("frontImage", url ? url : "")}
+                  type="image"
                 />
               </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.frontCNI")}</CardFooter>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
+                {t("fields.frontCNI")}
+              </CardFooter>
             </Card>
-            <p>and</p>
-            <Card className="w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
-              <CardContent className="h-40 border- shadow w-full group-hover:scale-102 duration-500 m-0 rounded-lg">
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      handleInputChange("backCNI", file);
-                    }
-                  }}
+
+            <p className="mx-2">and</p>
+
+            {/* Back */}
+            <Card className="w-full md:w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
+              <CardContent className="w-full m-0 rounded-lg">
+                <MediaUploader
+                  setMedia={(url) => handleInputChange("backImage", url ? url : "")}
+                  type="image"
                 />
               </CardContent>
-              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer"> {t("fields.backCNI")} </CardFooter>
+              <CardFooter className="text-foreground font-bold hover:underline duration-500 underline-offset-4 cursor-pointer">
+                {t("fields.backCNI")}
+              </CardFooter>
             </Card>
           </div>
         </div>
@@ -754,3 +788,5 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     </form>
   )
 }
+
+

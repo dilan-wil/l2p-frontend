@@ -10,22 +10,27 @@ import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslations } from "@/lib/useTranslations"
+import { useAuth } from "@/hooks/auth-context"
 
 export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [loginWith, setLoginWith] = useState("email")
   const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
   const router = useRouter()
   const t = useTranslations('login')
   const g = useTranslations()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log(true)
     setIsLoading(true)
 
     try {
-      
+      await login(email, password)
     } catch (error) {
       console.error("Login error:", error)
       alert("An error occurred. Please try again.")
@@ -46,12 +51,12 @@ export default function LoginPage() {
           <CardDescription>{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
             <Tabs value={loginWith} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="email">{g("common.email")}</TabsTrigger>
                 <TabsTrigger value="phone">{g("common.phone")}</TabsTrigger>
                 </TabsList>
-                <form onSubmit={handleSubmit} className="space-y-4">
                   <TabsContent value="email" className="space-y-6">
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
@@ -63,7 +68,18 @@ export default function LoginPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required={loginWith === "email" ? true : false}
-                            maxLength={9}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="password">Password</Label>
+                        <div className="flex">
+                          <Input
+                            id="password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
                           />
                         </div>
                       </div>
@@ -88,11 +104,11 @@ export default function LoginPage() {
                         </div>
                       </div>
                   </TabsContent>
-                </form>
             </Tabs>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Sending OTP..." : "Send OTP"}
+              {isLoading ? "Connexion..." : "Se connecter"}
             </Button>
+            </form>
         </CardContent>
       </Card>
     </div>

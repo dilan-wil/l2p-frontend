@@ -1,357 +1,614 @@
 "use client"
-
-import type React from "react"
-
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, CheckCircle, XCircle, Clock, Search, FileText, Camera, Home, CreditCard } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Sheet, SheetTrigger, SheetContent, SheetDescription, SheetTitle, SheetHeader } from "@/components/ui/sheet"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Calendar, CheckCircle, Clock, FileText, Mail, Phone, User, XCircle, Eye, CreditCard, Users, UserCheck, DollarSign, UserX, Dot, Ellipsis } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useAuth } from "@/hooks/auth-context"
+import axios from "axios"
 
-const mockKycApplications = [
-  {
-    id: "KYC001",
-    name: "Marie Dubois",
-    email: "marie.dubois@email.com",
-    phone: "+237 677 123 456",
-    status: "pending",
-    submittedDate: "2024-01-15",
-    documents: {
-      nationalIdFront: "/generic-identification-card-front.png",
-      nationalIdBack: "/national-id-back.png",
-      selfie: "/selfie-photo.png",
-      proofOfAddress: "/utility-bill-documents.png",
-      payslip: "/placeholder-zvvtn.png",
-    },
-    personalInfo: {
-      fullName: "Marie Dubois",
-      dateOfBirth: "1985-03-15",
-      address: "123 Rue de la Paix, Douala",
-      city: "Douala",
-      referralCode: "REF123",
-    },
-  },
-  {
-    id: "KYC002",
-    name: "Paul Nkomo",
-    email: "paul.nkomo@email.com",
-    phone: "+237 655 987 654",
-    status: "pending",
-    submittedDate: "2024-01-14",
-    documents: {
-      nationalIdFront: "/generic-identification-card-front.png",
-      nationalIdBack: "/national-id-back.png",
-      selfie: "/selfie-photo.png",
-      proofOfAddress: "/utility-bill-documents.png",
-    },
-    personalInfo: {
-      fullName: "Paul Nkomo",
-      dateOfBirth: "1990-07-22",
-      address: "456 Avenue des Cocotiers, Yaoundé",
-      city: "Yaoundé",
-    },
-  },
-  {
-    id: "KYC003",
-    name: "Sarah Mbeki",
-    email: "sarah.mbeki@email.com",
-    phone: "+237 699 111 222",
-    status: "approved",
-    submittedDate: "2024-01-13",
-    reviewedDate: "2024-01-14",
-    reviewedBy: "Jean-Paul Mbeki",
-    documents: {
-      nationalIdFront: "/generic-identification-card-front.png",
-      nationalIdBack: "/national-id-back.png",
-      selfie: "/selfie-photo.png",
-      proofOfAddress: "/utility-bill-documents.png",
-    },
-    personalInfo: {
-      fullName: "Sarah Mbeki",
-      dateOfBirth: "1988-11-05",
-      address: "789 Boulevard du 20 Mai, Douala",
-      city: "Douala",
-    },
-  },
-]
-
-export default function KycQueuePage() {
-  const [applications, setApplications] = useState(mockKycApplications)
-  const [selectedApplication, setSelectedApplication] = useState<(typeof mockKycApplications)[0] | null>(null)
-  const [reviewComment, setReviewComment] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [searchTerm, setSearchTerm] = useState("")
-
-  const filteredApplications = applications.filter((app) => {
-    const matchesStatus = statusFilter === "all" || app.status === statusFilter
-    const matchesSearch =
-      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.id.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
-
-  const handleApprove = () => {
-    if (selectedApplication) {
+export default function Page() {
+    const [pendingUsers, setPendingUsers] = useState<any[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [processingUserId, setProcessingUserId] = useState<string | null>(null)
+    const [pendingVerifications, setPendingVerifications] = useState<any>([])
+    const [reviewingUser, setReviewingUser] = useState<any | null>(null)
+    const { accessToken, user } = useAuth()
+    useEffect(() => {
       
-      setSelectedApplication(null)
-      setReviewComment("")
-    }
-  }
+    }, [])
 
-  const handleReject = () => {
-    if (selectedApplication) {
-      
-      setSelectedApplication(null)
-      setReviewComment("")
-    }
-  }
+    const handleApprove = async (userId: string) => {
+      try {
+        setProcessingUserId(userId);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-            <Clock className="w-3 h-3 mr-1" />
-            Pending
-          </Badge>
-        )
-      case "approved":
-        return (
-          <Badge variant="default" className="bg-green-100 text-green-800">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Approved
-          </Badge>
-        )
-      case "rejected":
-        return (
-          <Badge variant="destructive">
-            <XCircle className="w-3 h-3 mr-1" />
-            Rejected
-          </Badge>
-        )
-      default:
-        return <Badge variant="secondary">{status}</Badge>
-    }
-  }
+        // Call your API
+        const verifiedBy = user?.id; // or dynamically
+        const url = `https://l2p-cooperative-backend.onrender.com/users-verification/${userId.trim()}/approve?verifiedBy=${verifiedBy}`;
 
-  return (
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">KYC Queue</h1>
-          <p className="text-muted-foreground">Review and process member verification applications</p>
+        const res = await axios.patch(url, null, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // if needed
+          },
+        });
+        console.log(res)
+
+        if (res.status === 200) {
+          // Update local state
+          setPendingUsers((prev) =>
+            prev.map((user) =>
+              user.id === userId ? { ...user, status: "approved" } : user
+            )
+          );
+        } else {
+          console.error("Failed to approve user:", res.data);
+        }
+      } catch (error) {
+        console.error("Error approving user:", error);
+      } finally {
+        setProcessingUserId(null);
+      }
+    };
+
+    const handleReject = async (userId: string) => {
+        try {
+        setProcessingUserId(userId);
+
+        // Call your API
+        const verifiedBy = user?.id; // or dynamically
+        const url = `https://l2p-cooperative-backend.onrender.com/users-verification/${userId.trim()}/reject?verifiedBy=${verifiedBy}`;
+
+        const res = await axios.patch(url, null, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // if needed
+          },
+        });
+        console.log(res)
+
+        if (res.status === 200) {
+          // Update local state
+          setPendingUsers((prev) =>
+            prev.map((user) =>
+              user.id === userId ? { ...user, status: "approved" } : user
+            )
+          );
+        } else {
+          console.error("Failed to approve user:", res.data);
+        }
+      } catch (error) {
+        console.error("Error approving user:", error);
+      } finally {
+        setProcessingUserId(null);
+      }
+    }
+
+    useEffect(() => {
+      if(!accessToken) return
+      const fetchVerifications = async () => {
+        try {
+          const res = await axios.get("https://l2p-cooperative-backend.onrender.com/users-verification?page=1&size=10", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          })
+          console.log(res.data.data)
+          console.log(res.data.data.map(mapVerificationToUser))
+
+          // Map API response into UI users
+          const mapped = res.data.data.map(mapVerificationToUser)
+
+          setPendingVerifications(mapped)
+        } catch (error) {
+          console.error("Error fetching verifications:", error)
+        }
+      }
+
+      fetchVerifications()
+      setIsLoading(false)
+    }, [accessToken])
+
+
+    if (isLoading) {
+        return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+            <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-slate-600 font-medium">Loading admin dashboard...</p>
+            </div>
         </div>
+        )
+    }
 
-        {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Filter Applications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <Label htmlFor="search">Search</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="search"
-                    placeholder="Search by name, email, or ID..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="status">Status</Label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+    return(
+        <main className="p-6 overflow-x-hidden">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                KYC Management
+              </h1>
+              <p className="text-gray-600 mt-2">
+                Review and approve user verification requests with detailed document analysis
+              </p>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Applications Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>KYC Applications ({filteredApplications.length})</CardTitle>
-            <CardDescription>Click on an application to review documents</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {filteredApplications.map((application) => (
-                <div key={application.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                      <FileText className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{application.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {application.id} • {application.email}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Submitted: {application.submittedDate}</p>
-                    </div>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Total Users
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{20}</div>
+                  <p className="text-xs text-muted-foreground">Registered accounts</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <UserCheck className="h-4 w-4" />
+                    Active Users
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">{20}</div>
+                  <p className="text-xs text-muted-foreground">{Math.round((20 / 20) * 100)}% of total</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <UserX className="h-4 w-4" />
+                    Blocked Users
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-600">{20}</div>
+                  <p className="text-xs text-muted-foreground">{Math.round((20 / 20) * 100)}% of total</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Total Balance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{20}</div>
+                  <p className="text-xs text-muted-foreground">Across all accounts</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100">
+                <CardTitle className="flex items-center gap-3 text-gray-900">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Clock className="w-5 h-5 text-blue-600" />
                   </div>
-                  <div className="flex items-center space-x-3">
-                    {getStatusBadge(application.status)}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedApplication(application)}
-                          disabled={application.status !== "pending"}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Review
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>KYC Review - {selectedApplication?.name}</DialogTitle>
-                          <DialogDescription>Review the submitted documents and personal information</DialogDescription>
-                        </DialogHeader>
-
-                        {selectedApplication && (
-                          <div className="space-y-6">
-                            {/* Personal Information */}
-                            <div>
-                              <h3 className="font-semibold mb-3">Personal Information</h3>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span>Pending Verifications</span>
+                    <Badge variant="secondary" className="ml-3 bg-orange-100 text-orange-700">
+                      {pendingVerifications.length} waiting
+                    </Badge>
+                  </div>
+                </CardTitle>
+                <CardDescription className="text-gray-600">
+                  Users waiting for account verification approval - review documents and personal information
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                {pendingVerifications.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2 text-gray-900">All caught up!</h3>
+                    <p className="text-gray-500">No pending verification requests at the moment.</p>
+                  </div>
+                ) : (
+                  <div className="w-full rounded-lg border border-gray-200">
+                    <Table className="min-w-full">
+                      <TableHeader className="bg-gray-50">
+                        <TableRow>
+                          <TableHead className="font-semibold text-gray-700">User Details</TableHead>
+                          <TableHead className="font-semibold text-gray-700">Contact</TableHead>
+                          <TableHead className="font-semibold text-gray-700">Registration</TableHead>
+                          <TableHead className="font-semibold text-gray-700">Documents</TableHead>
+                          <TableHead className="font-semibold text-gray-700">Status</TableHead>
+                          <TableHead className="font-semibold text-gray-700">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody className="w-full">
+                        {pendingVerifications.map((user: any) => (
+                          <TableRow key={user.id} className="hover:bg-blue-50/50 transition-colors">
+                            <TableCell>
+                              <div className="flex items-center gap-3">
                                 <div>
-                                  <span className="text-muted-foreground">Full Name:</span>
-                                  <p className="font-medium">{selectedApplication.personalInfo.fullName}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Date of Birth:</span>
-                                  <p className="font-medium">{selectedApplication.personalInfo.dateOfBirth}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Phone:</span>
-                                  <p className="font-medium">{selectedApplication.phone}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Email:</span>
-                                  <p className="font-medium">{selectedApplication.email}</p>
-                                </div>
-                                <div className="col-span-2">
-                                  <span className="text-muted-foreground">Address:</span>
-                                  <p className="font-medium">{selectedApplication.personalInfo.address}</p>
+                                  <p className="font-semibold text-gray-900">{user.fullName}</p>
                                 </div>
                               </div>
-                            </div>
-
-                            {/* Documents */}
-                            <div>
-                              <h3 className="font-semibold mb-3">Submitted Documents</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <DocumentCard
-                                  title="National ID (Front)"
-                                  icon={<CreditCard className="w-4 h-4" />}
-                                  imageUrl={selectedApplication.documents.nationalIdFront}
-                                />
-                                <DocumentCard
-                                  title="National ID (Back)"
-                                  icon={<CreditCard className="w-4 h-4" />}
-                                  imageUrl={selectedApplication.documents.nationalIdBack}
-                                />
-                                <DocumentCard
-                                  title="Selfie Photo"
-                                  icon={<Camera className="w-4 h-4" />}
-                                  imageUrl={selectedApplication.documents.selfie}
-                                />
-                                <DocumentCard
-                                  title="Proof of Address"
-                                  icon={<Home className="w-4 h-4" />}
-                                  imageUrl={selectedApplication.documents.proofOfAddress}
-                                />
-                                {selectedApplication.documents.payslip && (
-                                  <DocumentCard
-                                    title="Income Proof"
-                                    icon={<FileText className="w-4 h-4" />}
-                                    imageUrl={selectedApplication.documents.payslip}
-                                  />
-                                )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2 text-sm text-gray-700">
+                                  <Phone className="w-3 h-3 text-blue-600" />
+                                  {user.phoneNumber}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-gray-500">
+                                  <Mail className="w-3 h-3" />
+                                  {user.email}
+                                </div>
                               </div>
-                            </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2 text-sm text-gray-700">
+                                <Calendar className="w-3 h-3 text-blue-600" />
+                                {new Date(user.registrationDate).toLocaleDateString()}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {user.documents.map((doc: any, index: any) => (
+                                  <Badge
+                                    key={index}
+                                    variant="outline"
+                                    className="text-xs border-blue-200 text-blue-700"
+                                  >
+                                    <FileText className="w-3 h-3 mr-1" />
+                                    {doc}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {user.status === "APPROVED" ? (
+                                <Badge
+                                  variant="outline"
+                                  className="text-green-600 border-green-200 bg-green-50"
+                                >
+                                  Approved
+                                </Badge>
+                              ) : (
+                                <Badge
+                                  variant="outline"
+                                  className="text-orange-600 border-orange-200 bg-orange-50"
+                                >
+                                  <Clock className="w-3 h-3 mr-1" /> Pending
+                                </Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Sheet>
+                                  <SheetTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-blue-200 text-blue-600 hover:bg-blue-50 bg-transparent"
+                                      onClick={() => setReviewingUser(user)}
+                                    >
+                                      <Ellipsis className="w-3 h-3 mr-1" />
+                                    </Button>
+                                  </SheetTrigger>
+                                  <SheetContent className="max-w-4xl pb-10">
+                                    <SheetHeader>
+                                      <SheetTitle className="flex items-center gap-2 text-xl">
+                                        <CreditCard className="w-5 h-5 text-blue-600" />
+                                        KYC Review - {user.fullName}
+                                      </SheetTitle>
+                                      <SheetDescription>
+                                        Review personal information and uploaded documents to verify identity
+                                      </SheetDescription>
+                                      <div className="w-full border-gray-200 flex gap-3 shadow-sm">
+                                        <Button
+                                          variant="destructive"
+                                          onClick={() => handleReject(user.id)}
+                                          disabled={processingUserId === user.id}
+                                          className="flex-1 px-6"
+                                        >
+                                          <XCircle className="w-4 h-4 mr-2" />
+                                          {processingUserId === user.userId ? "Processing..." : "Reject"}
+                                        </Button>
 
-                            {/* Review Comment */}
-                            <div>
-                              <Label htmlFor="comment">Review Comment</Label>
-                              <Textarea
-                                id="comment"
-                                placeholder="Add a comment about your decision..."
-                                value={reviewComment}
-                                onChange={(e) => setReviewComment(e.target.value)}
-                                rows={3}
-                              />
-                            </div>
-                          </div>
-                        )}
+                                        <Button
+                                          onClick={() => handleApprove(user.userId)}
+                                          disabled={processingUserId === user.userId}
+                                          className="flex-1 bg-green-600 hover:bg-green-700 px-6"
+                                        >
+                                          <CheckCircle className="w-4 h-4 mr-2" />
+                                          {processingUserId === user.userId ? "Processing..." : "Approve"}
+                                        </Button>
+                                      </div>
+                                    </SheetHeader>
+                                    
 
-                        <DialogFooter>
-                          <Button variant="outline" onClick={() => setSelectedApplication(null)}>
-                            Cancel
-                          </Button>
-                          <Button variant="destructive" onClick={handleReject}>
-                            <XCircle className="h-4 w-4 mr-2" />
-                            Reject
-                          </Button>
-                          <Button onClick={handleApprove}>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Approve
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                                    <ScrollArea className="max-h-[100vh]">
+                                      <div className="space-y-6 p-1">
+                                        {/* Personal Information Section */}
+                                        <div>
+                                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                            <User className="w-5 h-5 text-blue-600" />
+                                            Personal Information
+                                          </h3>
+                                          <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Full Name</label>
+                                              <p className="text-gray-900 font-medium">{user.fullName}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Date of Birth</label>
+                                              <p className="text-gray-900">
+                                                {new Date(user.personalInfo.dateOfBirth).toLocaleDateString()}
+                                              </p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">
+                                                Place of Birth
+                                              </label>
+                                              <p className="text-gray-900">{user.personalInfo.placeOfBirth}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Nationality</label>
+                                              <p className="text-gray-900">{user.personalInfo.nationality}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">ID Number</label>
+                                              <p className="text-gray-900 font-mono">{user.personalInfo.idNumber}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">ID Type</label>
+                                              <p className="text-gray-900">{user.personalInfo.idType}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">
+                                                Marital Status
+                                              </label>
+                                              <p className="text-gray-900">{user.personalInfo.maritalStatus}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Profession</label>
+                                              <p className="text-gray-900">{user.personalInfo.profession}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">
+                                                Monthly Income
+                                              </label>
+                                              <p className="text-gray-900 font-semibold">
+                                                {user.personalInfo.monthlyIncome}
+                                              </p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Phone Number</label>
+                                              <p className="text-gray-900">{user.phoneNumber}</p>
+                                            </div>
+                                            <div className="col-span-2">
+                                              <label className="text-sm font-medium text-gray-600">Address</label>
+                                              <p className="text-gray-900">
+                                                {user.personalInfo.address}, {user.personalInfo.city}{" "}
+                                                {user.personalInfo.postalCode}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <Separator />
+
+                                        {/* Emergency Contact Section */}
+                                        <div>
+                                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                            <Phone className="w-5 h-5 text-blue-600" />
+                                            Emergency Contact
+                                          </h3>
+                                          <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Name</label>
+                                              <p className="text-gray-900">{user.personalInfo.emergencyContact.name}</p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Relationship</label>
+                                              <p className="text-gray-900">
+                                                {user.personalInfo.emergencyContact.relationship}
+                                              </p>
+                                            </div>
+                                            <div>
+                                              <label className="text-sm font-medium text-gray-600">Phone</label>
+                                              <p className="text-gray-900">
+                                                {user.personalInfo.emergencyContact.phone}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <Separator />
+
+                                        {/* Documents Section */}
+                                        <div>
+                                          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                            <FileText className="w-5 h-5 text-blue-600" />
+                                            Documents
+                                          </h3>
+                                          <div className="space-y-4">
+                                            {/* ID Card Front & Back */}
+                                            <div className="grid grid-cols-2 gap-4">
+                                              <div className="space-y-2 cursor-pointer">
+                                                <label className="text-sm font-medium text-gray-600">
+                                                  ID Card (Front)
+                                                </label>
+                                                <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                                  <img
+                                                    src={user.uploadedDocuments.idCardFront || "/placeholder.svg"}
+                                                    alt="ID Card Front"
+                                                    className="w-full h-48 object-cover"
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div className="space-y-2">
+                                                <label className="text-sm font-medium text-gray-600">
+                                                  ID Card (Back)
+                                                </label>
+                                                <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                                  <img
+                                                    src={user.uploadedDocuments.idCardBack || "/placeholder.svg"}
+                                                    alt="ID Card Back"
+                                                    className="w-full h-48 object-cover"
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* Other Documents */}
+                                            {/* <div className="grid grid-cols-1 gap-4">
+                                              <div className="space-y-2">
+                                                <label className="text-sm font-medium text-gray-600">
+                                                  Proof of Address
+                                                </label>
+                                                <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                                  <img
+                                                    src={user.uploadedDocuments.proofOfAddress || "/placeholder.svg"}
+                                                    alt="Proof of Address"
+                                                    className="w-full h-32 object-cover"
+                                                  />
+                                                </div>
+                                              </div>
+
+                                              {user.uploadedDocuments.bankStatement && (
+                                                <div className="space-y-2">
+                                                  <label className="text-sm font-medium text-gray-600">
+                                                    Bank Statement
+                                                  </label>
+                                                  <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                                    <img
+                                                      src={user.uploadedDocuments.bankStatement || "/placeholder.svg"}
+                                                      alt="Bank Statement"
+                                                      className="w-full h-32 object-cover"
+                                                    />
+                                                  </div>
+                                                </div>
+                                              )}
+
+                                              {user.uploadedDocuments.employmentLetter && (
+                                                <div className="space-y-2">
+                                                  <label className="text-sm font-medium text-gray-600">
+                                                    Employment Letter
+                                                  </label>
+                                                  <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                                    <img
+                                                      src={
+                                                        user.uploadedDocuments.employmentLetter || "/placeholder.svg"
+                                                      }
+                                                      alt="Employment Letter"
+                                                      className="w-full h-32 object-cover"
+                                                    />
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div> */}
+                                          </div>
+                                        </div>
+
+                                        <Separator />
+
+                                        {/* Action Buttons */}
+                                        <div className="flex justify-end gap-3 pt-4">
+                                          <Button
+                                            variant="destructive"
+                                            onClick={() => handleReject(user.id)}
+                                            disabled={processingUserId === user.id}
+                                            className="px-6"
+                                          >
+                                            <XCircle className="w-4 h-4 mr-2" />
+                                            {processingUserId === user.id ? "Processing..." : "Reject Application"}
+                                          </Button>
+                                          <Button
+                                            onClick={() => handleApprove(user.id)}
+                                            disabled={processingUserId === user.id}
+                                            className="bg-green-600 hover:bg-green-700 px-6"
+                                          >
+                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                            {processingUserId === user.id ? "Processing..." : "Approve Application"}
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </ScrollArea>
+                                  </SheetContent>
+                                </Sheet>
+
+                                {/* <Button
+                                  size="sm"
+                                  onClick={() => handleApprove(user.id)}
+                                  disabled={processingUserId === user.id}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  {processingUserId === user.id ? "Processing..." : "Approve"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleReject(user.id)}
+                                  disabled={processingUserId === user.id}
+                                >
+                                  <XCircle className="w-3 h-3 mr-1" />
+                                  {processingUserId === user.id ? "Processing..." : "Reject"}
+                                </Button> */}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-  )
+                )}
+              </CardContent>
+            </Card>
+          </main>
+    )
 }
 
-interface DocumentCardProps {
-  title: string
-  icon: React.ReactNode
-  imageUrl: string
-}
+const mapVerificationToUser = (verification: any) => {
+  const profile = verification.user.profile
+  const documents = verification.user.documents
 
-function DocumentCard({ title, icon, imageUrl }: DocumentCardProps) {
-  return (
-    <div className="border rounded-lg p-3">
-      <div className="flex items-center space-x-2 mb-2">
-        {icon}
-        <span className="text-sm font-medium">{title}</span>
-      </div>
-      <img src={imageUrl || "/placeholder.svg"} alt={title} className="w-full h-32 object-cover rounded border" />
-    </div>
-  )
+  return {
+    id: verification.id,
+    userId: verification.userId,
+    fullName: `${profile.firstName} ${profile.lastName}`,
+    email: verification.user.email,
+    phoneNumber: profile.phone,
+    registrationDate: verification.createdAt,
+    documents: documents ? [documents.type] : [],
+    status: verification.status,
+    personalInfo: {
+      dateOfBirth: profile.birthDate,
+      placeOfBirth: profile.birthPlace,
+      nationality: profile.nationality,
+      idNumber: profile.idNumber,
+      idType: documents?.type || "N/A",
+      maritalStatus: profile.maritalStatus,
+      profession: profile.profession,
+      monthlyIncome: profile.salary,
+      address: profile.address,
+      city: profile.city,
+      postalCode: "", // not in API, so leave empty
+      emergencyContact: {
+        name: "N/A", // your API doesn’t give this, placeholder
+        relationship: "N/A",
+        phone: "N/A",
+      },
+    },
+    uploadedDocuments: {
+      idCardFront: documents?.frontImage,
+      idCardBack: documents?.backImage,
+      proofOfAddress: null, // not provided in your API
+      bankStatement: null,
+      employmentLetter: null,
+    },
+  }
 }

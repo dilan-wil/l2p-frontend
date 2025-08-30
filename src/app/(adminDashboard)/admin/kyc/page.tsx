@@ -6,7 +6,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogTitle, D
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Calendar, CheckCircle, Clock, FileText, Mail, Phone, User, XCircle, Eye, CreditCard } from "lucide-react"
+import { Calendar, CheckCircle, Clock, FileText, Mail, Phone, User, XCircle, Eye, CreditCard, Users, UserCheck, DollarSign, UserX } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export default function Page() {
@@ -162,6 +162,58 @@ export default function Page() {
               <p className="text-gray-600 mt-2">
                 Review and approve user verification requests with detailed document analysis
               </p>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Total Users
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{20}</div>
+                  <p className="text-xs text-muted-foreground">Registered accounts</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <UserCheck className="h-4 w-4" />
+                    Active Users
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">{20}</div>
+                  <p className="text-xs text-muted-foreground">{Math.round((20 / 20) * 100)}% of total</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <UserX className="h-4 w-4" />
+                    Blocked Users
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-600">{20}</div>
+                  <p className="text-xs text-muted-foreground">{Math.round((20 / 20) * 100)}% of total</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Total Balance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{20}</div>
+                  <p className="text-xs text-muted-foreground">Across all accounts</p>
+                </CardContent>
+              </Card>
             </div>
 
             <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">

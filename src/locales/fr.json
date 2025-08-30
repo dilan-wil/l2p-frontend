@@ -55,6 +55,7 @@
       "idDate": "Date d'Émission",
       "phone": "Téléphone",
       "email": "Email",
+      "password": "Mot de passe",
       "address": "Adresse",
       "city": "Ville/Quartier",
       "profession": "Profession",
@@ -96,6 +97,13 @@
       "holder2IdDate": "Date Émission Cotitulaire 2",
       "signature1": "Signature Cotitulaire 1",
       "signature2": "Signature Cotitulaire 2",
+      "documentType": "Type du Document",
+      "documentTypePlaceholder": "Choisissez votre document",
+      "documents": {
+        "cni": "Carte d'Identité",
+        "passport": "Passport",
+        "residentCard": "Carte de Résidence"
+      },
       "declaration": "Je déclare que les informations fournies sont exactes",
       "terms1Accepted": "Cotitulaire 1 accepte les termes et conditions",
       "terms2Accepted": "Cotitulaire 2 accepte les termes et conditions",
