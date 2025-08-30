@@ -13,6 +13,7 @@ interface AuthContextType {
   accessToken: string | null
   isLoading: boolean
   login: (username: string, password: string) => Promise<void>
+  register: (data: any) => Promise<void>
   logout: () => void
 }
 
@@ -60,6 +61,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const register = async (data: any) => {
+    try {
+      const res = await axios.post(
+        "https://l2p-cooperative-backend.onrender.com/auth/signup",
+        { ...data, password: data.password }
+      )
+
+      // Option B: auto-login after signup (using same pattern as login)
+      const { accessToken, user: userData } = res.data
+      if (accessToken && userData) {
+        setAccessToken(accessToken)
+        setUser(userData)
+        localStorage.setItem("accessToken", accessToken)
+        localStorage.setItem("user", JSON.stringify(userData))
+
+        if (userData.roleType === "ADMIN") {
+          router.push("/admin")
+        } else {
+          router.push("/dashboard")
+        }
+      }
+    } catch (err) {
+      console.error("Signup failed", err)
+      throw err
+    }
+  }
+
+
   // ----- LOGOUT -----
   const logout = () => {
     setUser(null)
@@ -70,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, accessToken, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   )

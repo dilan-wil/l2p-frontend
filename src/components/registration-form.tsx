@@ -18,6 +18,7 @@ import { useTranslations } from "@/lib/useTranslations"
 import axios from 'axios'
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { useAuth } from "@/hooks/auth-context"
 
 interface FormErrors {
   [key: string]: string
@@ -33,15 +34,13 @@ export function RegistrationForm() {
   const handleTabChange = (value: string) => {
     setActiveTab(value as "personal" | "joint")
   }
+  const { register } = useAuth()
 
   const handlePersonalSubmit = async (data: any) => {
     setIsSubmitting(true)
     // console.log("Personal Account Registration:", data)
     try {
-      await axios.post('https://l2p-cooperative-backend.onrender.com/auth/signup', data)
-      .then(res => console.log('reponse is :',res))
-      .catch(err => console.error(" votre erreure est ",err))
-      toast.success("Inscription réussie! Votre demande a été soumise.")
+      await register(data)
     } catch(error){
       console.log(error)
     } finally{
