@@ -23,7 +23,7 @@ const mockData = {
   user: {
     name: "Marie Dubois",
     savingsBalance: 450000,
-    loanBalance: 125000,
+    loanBalance: 0,
     totalDeposits: 850000,
     creditScore: 720,
   },
@@ -127,10 +127,10 @@ export default function DashboardPage() {
             <PiggyBank className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-800">{formatCurrency(mockData.user.savingsBalance)}</div>
+            <div className="text-2xl font-bold text-green-800">{formatCurrency(0)}</div>
             <p className="text-xs text-green-600 flex items-center">
               <TrendingUp className="inline h-3 w-3 mr-1" />
-              +2.5% from last month
+              {/* +2.5% from last month */}
             </p>
           </CardContent>
         </Card>
@@ -173,7 +173,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Transactions */}
-        <Card className="lg:col-span-2 border-gray-200 shadow-lg">
+        {/* <Card className="lg:col-span-2 border-gray-200 shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="text-blue-700">Recent Transactions</CardTitle>
@@ -234,7 +234,7 @@ export default function DashboardPage() {
               ))}
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Notifications & Quick Actions */}
         <div className="space-y-6">
@@ -308,7 +308,7 @@ export default function DashboardPage() {
           </Card>
 
           {/* Notifications */}
-          <Card className="border-gray-200 shadow-md">
+          {/* <Card className="border-gray-200 shadow-md">
             <CardHeader>
               <CardTitle className="text-purple-700">Notifications</CardTitle>
             </CardHeader>
@@ -346,7 +346,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </div>

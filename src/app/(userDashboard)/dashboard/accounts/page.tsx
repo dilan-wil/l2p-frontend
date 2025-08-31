@@ -31,6 +31,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/hooks/auth-context"
 import { useRouter } from "next/navigation"
+import AccountCard from "@/components/accounts/account-card"
 
 const accountTypeLabels: Record<string, string> = {
   COURANT: "Checking",
@@ -73,7 +74,7 @@ const accountTypeConfig: Record<
 
 export default function AccountsPage() {
   const [selectedAccount, setSelectedAccount] = useState<(typeof userAccounts)[0] | null>(null)
-  const { user, userAccounts } = useAuth()
+  const { user, userAccounts, openAccount } = useAuth()
   const router = useRouter()
   const totalBalance = userAccounts
     // .filter((account) => account.type !== "credit")
@@ -189,75 +190,7 @@ export default function AccountsPage() {
               const IconComponent = config.icon
 
               return (
-                <Card key={account.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${config.color} text-white`}>
-                          <IconComponent className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">{config.label}</CardTitle>
-                          <CardDescription>
-                            {account.rib ? `Account Number: XAF{account.rib}` : "No Account Yet"}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge className={getAccountStatusColor(account.active)}>
-                        {account.active ? "Active" : "Inactive"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Available Balance</p>
-                        <p
-                          className={`text-2xl font-bold ${
-                            Number(account.balance) < 0 ? "text-red-600" : "text-green-600"
-                          }`}
-                        >
-                          {Number(account.balance).toLocaleString("fr-FR", {
-                            style: "currency",
-                            currency: "XAF",
-                          })}
-                        </p>
-                      </div>
-
-                      {/* Conditional Action Button */}
-                      {account.rib ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => router.push(`/account/${account.id}`)}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </Button>
-                      ) : (
-                        <Button
-                          className="bg-blue-600"
-                          size="sm"
-                          onClick={() => router.push("/open-account")}
-                        >
-                          Open Account
-                        </Button>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">
-                            Since {new Date(account.createdAt).getFullYear()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AccountCard account={account} config={config} />
               )
             })}
           </div>
@@ -274,75 +207,7 @@ export default function AccountsPage() {
                   const IconComponent = config.icon
 
                   return (
-                    <Card key={account.id} className="hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${config.color} text-white`}>
-                              <IconComponent className="h-5 w-5" />
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{config.label}</CardTitle>
-                              <CardDescription>
-                                {account.rib ? `Account Number: XAF{account.rib}` : "No Account Yet"}
-                              </CardDescription>
-                            </div>
-                          </div>
-                          <Badge className={getAccountStatusColor(account.active)}>
-                            {account.active ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Available Balance</p>
-                            <p
-                              className={`text-2xl font-bold ${
-                                Number(account.balance) < 0 ? "text-red-600" : "text-green-600"
-                              }`}
-                            >
-                              {Number(account.balance).toLocaleString("fr-FR", {
-                                style: "currency",
-                                currency: "XAF",
-                              })}
-                            </p>
-                          </div>
-
-                          {/* Conditional Action Button */}
-                          {account.rib ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => router.push(`/account/${account.id}`)}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => router.push("/open-account")}
-                            >
-                              Open Account
-                            </Button>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-muted-foreground">
-                                Since {new Date(account.createdAt).getFullYear()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <AccountCard account={account} config={config} />
                   )
                 })}
             </div>

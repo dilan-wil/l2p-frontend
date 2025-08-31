@@ -8,12 +8,21 @@ import { Account, User } from "@/types/types"
 // ----- TYPES -----
 export type RoleType = "ADMIN" | "USER"
 
+const sortAccounts = (accounts: Account[]) => {
+  return accounts.sort((a, b) => {
+    if (a.rib && !b.rib) return -1  // a has RIB, b doesn't → a goes first
+    if (!a.rib && b.rib) return 1   // a doesn't have RIB, b does → b goes first
+    return 0                        // otherwise keep order
+  })
+}
+
 interface AuthContextType {
   user: User | null
   userAccounts: Account[]
   accessToken: string | null
   isLoading: boolean
   login: (username: string, password: string) => Promise<void>
+  openAccount: (type: string, agencyId: string) => Promise<void>
   register: (data: any) => Promise<void>
   logout: () => void
 }
@@ -51,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           console.log(freshUser)
           setAccessToken(savedToken)
           setUser(freshUser)
-          setUserAccounts(freshUser.accounts)
+          setUserAccounts(sortAccounts(freshUser.accounts))
 
           // Update localStorage with fresh user
           localStorage.setItem("user", JSON.stringify(freshUser))
@@ -75,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       setAccessToken(accessToken)
       setUser(userData)
-      setUserAccounts(userData.accounts)
+      setUserAccounts(sortAccounts(userData.accounts))
       localStorage.setItem("accessToken", accessToken)
       localStorage.setItem("user", JSON.stringify(userData))
 
@@ -99,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (accessToken && userData) {
         setAccessToken(accessToken)
         setUser(userData)
-        setUserAccounts(userData.accounts)
+        setUserAccounts(sortAccounts(userData.accounts))
         localStorage.setItem("accessToken", accessToken)
         localStorage.setItem("user", JSON.stringify(userData))
 
@@ -115,6 +124,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const fetchAccounts = async () => {
+    try {
+      const res = await axios.get(`${baseUrl}/accounts/me?page=1&limit=10`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+
+      // Make sure accounts exist
+      const accounts = res.data?.accounts || []
+
+      setUserAccounts(sortAccounts(accounts))
+    } catch (err) {
+      console.error("Failed to fetch accounts", err)
+    }
+  }
+
+  const openAccount = async (type: string, agencyId: string) => {
+    try {
+      const res = await axios.post(
+        `${baseUrl}/accounts/open?bankId=10221&agencyId=${agencyId}&type=${type}`,
+        {},
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      console.log("Account opened", res.data)
+      // refresh accounts after opening
+      fetchAccounts()
+    } catch (err) {
+      console.error("Failed to open account", err)
+    }
+  }
+
   // ----- LOGOUT -----
   const logout = () => {
     setUser(null)
@@ -125,11 +164,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, userAccounts, accessToken, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, userAccounts, accessToken, isLoading, login, register, logout, openAccount }}>
       {children}
     </AuthContext.Provider>
   )
 }
+
 
 // ----- CUSTOM HOOK -----
 export const useAuth = () => {
@@ -137,3 +177,5 @@ export const useAuth = () => {
   if (!context) throw new Error("useAuth must be used within AuthProvider")
   return context
 }
+
+
