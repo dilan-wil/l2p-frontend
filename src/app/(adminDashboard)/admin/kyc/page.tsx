@@ -17,6 +17,7 @@ export default function Page() {
     const [isLoading, setIsLoading] = useState(true)
     const [processingUserId, setProcessingUserId] = useState<string | null>(null)
     const [pendingVerifications, setPendingVerifications] = useState<any>([])
+    const [totalItems, setTotalItems] = useState(0)
     const [reviewingUser, setReviewingUser] = useState<any | null>(null)
     const [isDialogOpened, setIsDialogOpened] = useState(false)
     const { accessToken, user } = useAuth()
@@ -103,7 +104,7 @@ export default function Page() {
 
           // Map API response into UI users
           const mapped = res.data.data.map(mapVerificationToUser)
-
+          setTotalItems(res.data.totalItems)
           setPendingVerifications(mapped)
         } catch (error) {
           console.error("Error fetching verifications:", error)
@@ -138,7 +139,7 @@ export default function Page() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -147,7 +148,7 @@ export default function Page() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{20}</div>
+                  <div className="text-2xl font-bold">{totalItems}</div>
                   <p className="text-xs text-muted-foreground">Registered accounts</p>
                 </CardContent>
               </Card>
@@ -159,23 +160,23 @@ export default function Page() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{20}</div>
-                  <p className="text-xs text-muted-foreground">{Math.round((20 / 20) * 100)}% of total</p>
+                  <div className="text-2xl font-bold text-green-600">{pendingVerifications.filter((user: any) => user.status === "APPROVED").length}</div>
+                  <p className="text-xs text-muted-foreground">{Math.round((pendingVerifications.filter((user: any) => user.status === "APPROVED").length / totalItems) * 100)}% of total</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
                     <UserX className="h-4 w-4" />
-                    Blocked Users
+                    Rejected Users
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-red-600">{20}</div>
-                  <p className="text-xs text-muted-foreground">{Math.round((20 / 20) * 100)}% of total</p>
+                  <div className="text-2xl font-bold text-red-600">{pendingVerifications.filter((user: any) => user.status === "REJECTED").length}</div>
+                  <p className="text-xs text-muted-foreground">{Math.round((pendingVerifications.filter((user: any) => user.status === "REJECTED").length / totalItems) * 100)}% of total</p>
                 </CardContent>
               </Card>
-              <Card>
+              {/* <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
                     <DollarSign className="h-4 w-4" />
@@ -186,7 +187,7 @@ export default function Page() {
                   <div className="text-2xl font-bold">{20}</div>
                   <p className="text-xs text-muted-foreground">Across all accounts</p>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
 
             <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
