@@ -11,7 +11,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/hooks/use-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -102,7 +101,6 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState(initialSettings)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState("platform")
-  const { toast } = useToast()
 
   const handleSettingChange = (category: string, setting: string, value: any) => {
     setSettings((prev) => ({
@@ -133,25 +131,25 @@ export default function AdminSettingsPage() {
     await new Promise((resolve) => setTimeout(resolve, 2000))
     setIsSaving(false)
 
-    toast({
-      title: "Settings Updated",
-      description: "Platform settings have been successfully saved.",
-    })
+    // toast({
+    //   title: "Settings Updated",
+    //   description: "Platform settings have been successfully saved.",
+    // })
   }
 
   const handleSystemBackup = async () => {
-    toast({
-      title: "Backup Started",
-      description: "System backup has been initiated. You'll be notified when complete.",
-    })
+    // toast({
+    //   title: "Backup Started",
+    //   description: "System backup has been initiated. You'll be notified when complete.",
+    // })
   }
 
   const handleSystemMaintenance = async () => {
-    toast({
-      title: "Maintenance Mode Enabled",
-      description: "The platform is now in maintenance mode. Users will see a maintenance page.",
-      variant: "destructive",
-    })
+    // toast({
+    //   title: "Maintenance Mode Enabled",
+    //   description: "The platform is now in maintenance mode. Users will see a maintenance page.",
+    //   variant: "destructive",
+    // })
   }
 
   return (
