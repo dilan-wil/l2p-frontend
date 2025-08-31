@@ -2,145 +2,115 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogTrigger, DialogContent, DialogDescription, DialogTitle, DialogHeader } from "@/components/ui/dialog"
+import { Sheet, SheetTrigger, SheetContent, SheetDescription, SheetTitle, SheetHeader } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Calendar, CheckCircle, Clock, FileText, Mail, Phone, User, XCircle, Eye, CreditCard, Users, UserCheck, DollarSign, UserX } from "lucide-react"
+import { Calendar, CheckCircle, Clock, FileText, Mail, Phone, User, XCircle, Eye, CreditCard, Users, UserCheck, DollarSign, UserX, Dot, Ellipsis } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useAuth } from "@/hooks/auth-context"
+import axios from "axios"
 
 export default function Page() {
     const [pendingUsers, setPendingUsers] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [processingUserId, setProcessingUserId] = useState<string | null>(null)
+    const [pendingVerifications, setPendingVerifications] = useState<any>([])
     const [reviewingUser, setReviewingUser] = useState<any | null>(null)
+    const { accessToken, user } = useAuth()
+    useEffect(() => {
+      
+    }, [])
 
-    const handleApprove = (userId: string) => {
-        setProcessingUserId(userId)
-        // Simulate processing time
-        setTimeout(() => {
-        setPendingUsers(pendingUsers.map((user) => (user.id === userId ? { ...user, status: "approved" } : user)))
-        setProcessingUserId(null)
-        }, 2000)
-    }
+    const handleApprove = async (userId: string) => {
+      try {
+        setProcessingUserId(userId);
 
-    const handleReject = (userId: string) => {
-        setProcessingUserId(userId)
-        // Simulate processing time
-        setTimeout(() => {
-        setPendingUsers(pendingUsers.map((user) => (user.id === userId ? { ...user, status: "rejected" } : user)))
-        setProcessingUserId(null)
-        }, 2000)
+        // Call your API
+        const verifiedBy = user?.id; // or dynamically
+        const url = `https://l2p-cooperative-backend.onrender.com/users-verification/${userId.trim()}/approve?verifiedBy=${verifiedBy}`;
+
+        const res = await axios.patch(url, null, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // if needed
+          },
+        });
+        console.log(res)
+
+        if (res.status === 200) {
+          // Update local state
+          setPendingUsers((prev) =>
+            prev.map((user) =>
+              user.id === userId ? { ...user, status: "approved" } : user
+            )
+          );
+        } else {
+          console.error("Failed to approve user:", res.data);
+        }
+      } catch (error) {
+        console.error("Error approving user:", error);
+      } finally {
+        setProcessingUserId(null);
+      }
+    };
+
+    const handleReject = async (userId: string) => {
+        try {
+        setProcessingUserId(userId);
+
+        // Call your API
+        const verifiedBy = user?.id; // or dynamically
+        const url = `https://l2p-cooperative-backend.onrender.com/users-verification/${userId.trim()}/reject?verifiedBy=${verifiedBy}`;
+
+        const res = await axios.patch(url, null, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // if needed
+          },
+        });
+        console.log(res)
+
+        if (res.status === 200) {
+          // Update local state
+          setPendingUsers((prev) =>
+            prev.map((user) =>
+              user.id === userId ? { ...user, status: "approved" } : user
+            )
+          );
+        } else {
+          console.error("Failed to approve user:", res.data);
+        }
+      } catch (error) {
+        console.error("Error approving user:", error);
+      } finally {
+        setProcessingUserId(null);
+      }
     }
 
     useEffect(() => {
-        const loadPendingUsers = () => {
-        setPendingUsers([
-            {
-            id: "1",
-            fullName: "Marie Dubois",
-            phoneNumber: "+237678901234",
-            email: "marie.dubois@email.com",
-            registrationDate: "2024-01-15",
-            status: "pending",
-            documents: ["ID Card", "Proof of Address", "Bank Statement"],
-            personalInfo: {
-                dateOfBirth: "1990-05-15",
-                placeOfBirth: "Yaoundé, Cameroon",
-                nationality: "Cameroonian",
-                maritalStatus: "Single",
-                profession: "Software Engineer",
-                monthlyIncome: "800,000 FCFA",
-                address: "123 Rue de la Paix, Bastos",
-                city: "Yaoundé",
-                postalCode: "BP 1234",
-                idNumber: "CM123456789",
-                idType: "National ID Card",
-                emergencyContact: {
-                name: "Jean Dubois",
-                relationship: "Father",
-                phone: "+237678901235",
-                },
+      if(!accessToken) return
+      const fetchVerifications = async () => {
+        try {
+          const res = await axios.get("https://l2p-cooperative-backend.onrender.com/users-verification?page=1&size=10", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
             },
-            uploadedDocuments: {
-                idCardFront: "/cameroon-national-id-front.png",
-                idCardBack: "/cameroon-national-id-back.png",
-                proofOfAddress: "/utility-bill-proof-of-address.png",
-                bankStatement: "/generic-bank-statement.png",
-            },
-            },
-            {
-            id: "2",
-            fullName: "Paul Ngono",
-            phoneNumber: "+237687654321",
-            email: "paul.ngono@email.com",
-            registrationDate: "2024-01-14",
-            status: "pending",
-            documents: ["ID Card", "Proof of Address"],
-            personalInfo: {
-                dateOfBirth: "1985-08-22",
-                placeOfBirth: "Douala, Cameroon",
-                nationality: "Cameroonian",
-                maritalStatus: "Married",
-                profession: "Business Owner",
-                monthlyIncome: "1,200,000 FCFA",
-                address: "456 Avenue du Commerce, Akwa",
-                city: "Douala",
-                postalCode: "BP 5678",
-                idNumber: "CM987654321",
-                idType: "National ID Card",
-                emergencyContact: {
-                name: "Grace Ngono",
-                relationship: "Spouse",
-                phone: "+237687654322",
-                },
-            },
-            uploadedDocuments: {
-                idCardFront: "/cameroon-national-id-front.png",
-                idCardBack: "/cameroon-national-id-back.png",
-                proofOfAddress: "/utility-bill-proof-of-address.png",
-            },
-            },
-            {
-            id: "3",
-            fullName: "Sarah Mballa",
-            phoneNumber: "+237698765432",
-            email: "sarah.mballa@email.com",
-            registrationDate: "2024-01-13",
-            status: "pending",
-            documents: ["ID Card", "Proof of Address", "Bank Statement", "Employment Letter"],
-            personalInfo: {
-                dateOfBirth: "1992-12-03",
-                placeOfBirth: "Bafoussam, Cameroon",
-                nationality: "Cameroonian",
-                maritalStatus: "Single",
-                profession: "Teacher",
-                monthlyIncome: "450,000 FCFA",
-                address: "789 Rue de l'École, Centre-ville",
-                city: "Bafoussam",
-                postalCode: "BP 9012",
-                idNumber: "CM456789123",
-                idType: "National ID Card",
-                emergencyContact: {
-                name: "Pierre Mballa",
-                relationship: "Brother",
-                phone: "+237698765433",
-                },
-            },
-            uploadedDocuments: {
-                idCardFront: "/cameroon-national-id-front.png",
-                idCardBack: "/cameroon-national-id-back.png",
-                proofOfAddress: "/utility-bill-proof-of-address.png",
-                bankStatement: "/generic-bank-statement.png",
-                employmentLetter: "/employment-letter.png",
-            },
-            },
-        ])
-        setIsLoading(false)
-        }
+          })
+          console.log(res.data.data)
+          console.log(res.data.data.map(mapVerificationToUser))
 
-        loadPendingUsers()
-    }, [])
+          // Map API response into UI users
+          const mapped = res.data.data.map(mapVerificationToUser)
+
+          setPendingVerifications(mapped)
+        } catch (error) {
+          console.error("Error fetching verifications:", error)
+        }
+      }
+
+      fetchVerifications()
+      setIsLoading(false)
+    }, [accessToken])
+
 
     if (isLoading) {
         return (
@@ -225,7 +195,7 @@ export default function Page() {
                   <div>
                     <span>Pending Verifications</span>
                     <Badge variant="secondary" className="ml-3 bg-orange-100 text-orange-700">
-                      {pendingUsers.length} waiting
+                      {pendingVerifications.length} waiting
                     </Badge>
                   </div>
                 </CardTitle>
@@ -234,7 +204,7 @@ export default function Page() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                {pendingUsers.length === 0 ? (
+                {pendingVerifications.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <CheckCircle className="w-8 h-8 text-green-600" />
@@ -244,7 +214,7 @@ export default function Page() {
                   </div>
                 ) : (
                   <div className="w-full rounded-lg border border-gray-200">
-                    <Table className="min-w-full table-fixed">
+                    <Table className="min-w-full">
                       <TableHeader className="bg-gray-50">
                         <TableRow>
                           <TableHead className="font-semibold text-gray-700">User Details</TableHead>
@@ -256,16 +226,12 @@ export default function Page() {
                         </TableRow>
                       </TableHeader>
                       <TableBody className="w-full">
-                        {pendingUsers.map((user) => (
+                        {pendingVerifications.map((user: any) => (
                           <TableRow key={user.id} className="hover:bg-blue-50/50 transition-colors">
                             <TableCell>
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
-                                  <User className="w-5 h-5 text-white" />
-                                </div>
                                 <div>
                                   <p className="font-semibold text-gray-900">{user.fullName}</p>
-                                  <p className="text-sm text-gray-500">ID: {user.id}</p>
                                 </div>
                               </div>
                             </TableCell>
@@ -302,37 +268,68 @@ export default function Page() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">
-                                <Clock className="w-3 h-3 mr-1" />
-                                Pending Review
-                              </Badge>
+                              {user.status === "APPROVED" ? (
+                                <Badge
+                                  variant="outline"
+                                  className="text-green-600 border-green-200 bg-green-50"
+                                >
+                                  Approved
+                                </Badge>
+                              ) : (
+                                <Badge
+                                  variant="outline"
+                                  className="text-orange-600 border-orange-200 bg-orange-50"
+                                >
+                                  <Clock className="w-3 h-3 mr-1" /> Pending
+                                </Badge>
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Dialog>
-                                  <DialogTrigger asChild>
+                                <Sheet>
+                                  <SheetTrigger asChild>
                                     <Button
                                       size="sm"
                                       variant="outline"
                                       className="border-blue-200 text-blue-600 hover:bg-blue-50 bg-transparent"
                                       onClick={() => setReviewingUser(user)}
                                     >
-                                      <Eye className="w-3 h-3 mr-1" />
-                                      Review
+                                      <Ellipsis className="w-3 h-3 mr-1" />
                                     </Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="max-w-4xl max-h-[90vh]">
-                                    <DialogHeader>
-                                      <DialogTitle className="flex items-center gap-2 text-xl">
+                                  </SheetTrigger>
+                                  <SheetContent className="max-w-4xl pb-10">
+                                    <SheetHeader>
+                                      <SheetTitle className="flex items-center gap-2 text-xl">
                                         <CreditCard className="w-5 h-5 text-blue-600" />
                                         KYC Review - {user.fullName}
-                                      </DialogTitle>
-                                      <DialogDescription>
+                                      </SheetTitle>
+                                      <SheetDescription>
                                         Review personal information and uploaded documents to verify identity
-                                      </DialogDescription>
-                                    </DialogHeader>
+                                      </SheetDescription>
+                                      <div className="w-full border-gray-200 flex gap-3 shadow-sm">
+                                        <Button
+                                          variant="destructive"
+                                          onClick={() => handleReject(user.id)}
+                                          disabled={processingUserId === user.id}
+                                          className="flex-1 px-6"
+                                        >
+                                          <XCircle className="w-4 h-4 mr-2" />
+                                          {processingUserId === user.userId ? "Processing..." : "Reject"}
+                                        </Button>
 
-                                    <ScrollArea className="max-h-[70vh]">
+                                        <Button
+                                          onClick={() => handleApprove(user.userId)}
+                                          disabled={processingUserId === user.userId}
+                                          className="flex-1 bg-green-600 hover:bg-green-700 px-6"
+                                        >
+                                          <CheckCircle className="w-4 h-4 mr-2" />
+                                          {processingUserId === user.userId ? "Processing..." : "Approve"}
+                                        </Button>
+                                      </div>
+                                    </SheetHeader>
+                                    
+
+                                    <ScrollArea className="max-h-[100vh]">
                                       <div className="space-y-6 p-1">
                                         {/* Personal Information Section */}
                                         <div>
@@ -435,12 +432,12 @@ export default function Page() {
                                         <div>
                                           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                                             <FileText className="w-5 h-5 text-blue-600" />
-                                            Uploaded Documents
+                                            Documents
                                           </h3>
                                           <div className="space-y-4">
                                             {/* ID Card Front & Back */}
                                             <div className="grid grid-cols-2 gap-4">
-                                              <div className="space-y-2">
+                                              <div className="space-y-2 cursor-pointer">
                                                 <label className="text-sm font-medium text-gray-600">
                                                   ID Card (Front)
                                                 </label>
@@ -467,7 +464,7 @@ export default function Page() {
                                             </div>
 
                                             {/* Other Documents */}
-                                            <div className="grid grid-cols-1 gap-4">
+                                            {/* <div className="grid grid-cols-1 gap-4">
                                               <div className="space-y-2">
                                                 <label className="text-sm font-medium text-gray-600">
                                                   Proof of Address
@@ -512,7 +509,7 @@ export default function Page() {
                                                   </div>
                                                 </div>
                                               )}
-                                            </div>
+                                            </div> */}
                                           </div>
                                         </div>
 
@@ -540,10 +537,10 @@ export default function Page() {
                                         </div>
                                       </div>
                                     </ScrollArea>
-                                  </DialogContent>
-                                </Dialog>
+                                  </SheetContent>
+                                </Sheet>
 
-                                <Button
+                                {/* <Button
                                   size="sm"
                                   onClick={() => handleApprove(user.id)}
                                   disabled={processingUserId === user.id}
@@ -560,7 +557,7 @@ export default function Page() {
                                 >
                                   <XCircle className="w-3 h-3 mr-1" />
                                   {processingUserId === user.id ? "Processing..." : "Reject"}
-                                </Button>
+                                </Button> */}
                               </div>
                             </TableCell>
                           </TableRow>
@@ -573,4 +570,45 @@ export default function Page() {
             </Card>
           </main>
     )
+}
+
+const mapVerificationToUser = (verification: any) => {
+  const profile = verification.user.profile
+  const documents = verification.user.documents
+
+  return {
+    id: verification.id,
+    userId: verification.userId,
+    fullName: `${profile.firstName} ${profile.lastName}`,
+    email: verification.user.email,
+    phoneNumber: profile.phone,
+    registrationDate: verification.createdAt,
+    documents: documents ? [documents.type] : [],
+    status: verification.status,
+    personalInfo: {
+      dateOfBirth: profile.birthDate,
+      placeOfBirth: profile.birthPlace,
+      nationality: profile.nationality,
+      idNumber: profile.idNumber,
+      idType: documents?.type || "N/A",
+      maritalStatus: profile.maritalStatus,
+      profession: profile.profession,
+      monthlyIncome: profile.salary,
+      address: profile.address,
+      city: profile.city,
+      postalCode: "", // not in API, so leave empty
+      emergencyContact: {
+        name: "N/A", // your API doesn’t give this, placeholder
+        relationship: "N/A",
+        phone: "N/A",
+      },
+    },
+    uploadedDocuments: {
+      idCardFront: documents?.frontImage,
+      idCardBack: documents?.backImage,
+      proofOfAddress: null, // not provided in your API
+      bankStatement: null,
+      employmentLetter: null,
+    },
+  }
 }

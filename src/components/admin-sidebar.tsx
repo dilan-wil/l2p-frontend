@@ -30,6 +30,7 @@ import { Button } from "./ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "@/lib/useTranslations"
+import { useAuth } from "@/hooks/auth-context"
 
 const AdminSidebar = () => {
   const pathname = usePathname()
@@ -43,7 +44,8 @@ const AdminSidebar = () => {
     { name: t('admin.navigation.users'), href: "/admin/users", icon: Users },
     { name: t('admin.navigation.notification'), href: "/admin/notifications", icon: MessageSquare },
   ]
-
+  const { logout } = useAuth()
+  
   return (
     <Sidebar collapsible="icon" className="border-r border-blue-100 bg-white/80 backdrop-blur-md">
       <SidebarContent>
@@ -132,13 +134,12 @@ const AdminSidebar = () => {
           {/* Sign Out */}
           <Button
             variant="ghost"
+            onClick={logout}
             className="w-full justify-start text-red-600 hover:bg-red-50"
             asChild
           >
-            <Link href="/login">
               <LogOut className="h-4 w-4 mr-3" />
               {t('admin.footer.sign_out')}
-            </Link>
           </Button>
         </div>
       </SidebarFooter>

@@ -14,6 +14,7 @@ export interface Account {
   userId: string
   type: "EPARGNE" | "COURANT" | "NDJANGUI" | "CHEQUE" | "PLACEMENT"
   balance: string
+  rib: string | null
   active: boolean
   createdAt: string
   updatedAt: string

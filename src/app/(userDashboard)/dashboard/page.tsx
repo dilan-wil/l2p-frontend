@@ -1,3 +1,4 @@
+"use client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,6 +16,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/hooks/auth-context"
 
 // Mock data
 const mockData = {
@@ -105,6 +107,7 @@ export default function DashboardPage() {
       minimumFractionDigits: 0,
     }).format(amount)
   }
+  const { user } = useAuth()
 
   const loanProgress = ((12 - mockData.loanInfo.remainingPayments) / 12) * 100
 
@@ -112,7 +115,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div>
-        <h1 className="text-3xl font-bold text-blue-700">Welcome back, Marie!</h1>
+        <h1 className="text-3xl font-bold text-blue-700">Welcome back, {user?.profile.firstName}!</h1>
         <p className="text-gray-600">Here's your financial overview for today.</p>
       </div>
 

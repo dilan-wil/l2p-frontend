@@ -29,136 +29,73 @@ import {
   Calendar,
   Activity,
 } from "lucide-react"
+import { useAuth } from "@/hooks/auth-context"
+import { useRouter } from "next/navigation"
 
-// Mock account data
-const mockAccounts = [
-  {
-    id: "ACC001",
-    name: "Primary Checking",
-    type: "checking",
-    accountNumber: "****1234",
-    balance: 15420.75,
-    availableBalance: 15420.75,
-    status: "active",
-    openDate: "2022-01-15",
-    interestRate: 0.01,
-    monthlyFee: 0,
-    recentActivity: [
-      { date: "2024-01-15", description: "Direct Deposit - Salary", amount: 3500.0, type: "credit" },
-      { date: "2024-01-14", description: "ATM Withdrawal", amount: -100.0, type: "debit" },
-      { date: "2024-01-13", description: "Online Transfer to Savings", amount: -500.0, type: "debit" },
-      { date: "2024-01-12", description: "Grocery Store Purchase", amount: -89.45, type: "debit" },
-      { date: "2024-01-11", description: "Gas Station", amount: -45.2, type: "debit" },
-    ],
-  },
-  {
-    id: "ACC002",
-    name: "High Yield Savings",
-    type: "savings",
-    accountNumber: "****5678",
-    balance: 25750.0,
-    availableBalance: 25750.0,
-    status: "active",
-    openDate: "2022-01-15",
-    interestRate: 4.5,
-    monthlyFee: 0,
-    recentActivity: [
-      { date: "2024-01-13", description: "Transfer from Checking", amount: 500.0, type: "credit" },
-      { date: "2024-01-01", description: "Interest Payment", amount: 95.31, type: "credit" },
-      { date: "2023-12-15", description: "Monthly Deposit", amount: 1000.0, type: "credit" },
-    ],
-  },
-  {
-    id: "ACC003",
-    name: "Investment Portfolio",
-    type: "investment",
-    accountNumber: "****9012",
-    balance: 48920.33,
-    availableBalance: 48920.33,
-    status: "active",
-    openDate: "2022-03-01",
-    interestRate: 7.2,
-    monthlyFee: 25,
-    recentActivity: [
-      { date: "2024-01-15", description: "Dividend Payment - AAPL", amount: 125.5, type: "credit" },
-      { date: "2024-01-10", description: "Stock Purchase - MSFT", amount: -2500.0, type: "debit" },
-      { date: "2024-01-05", description: "Portfolio Rebalancing", amount: 0, type: "neutral" },
-    ],
-  },
-  {
-    id: "ACC004",
-    name: "Rewards Credit Card",
-    type: "credit",
-    accountNumber: "****3456",
-    balance: -1250.45,
-    availableBalance: 8749.55,
-    creditLimit: 10000,
-    status: "active",
-    openDate: "2022-06-01",
-    interestRate: 18.99,
-    monthlyFee: 0,
-    recentActivity: [
-      { date: "2024-01-14", description: "Online Shopping", amount: -299.99, type: "debit" },
-      { date: "2024-01-13", description: "Restaurant", amount: -85.5, type: "debit" },
-      { date: "2024-01-12", description: "Payment Received", amount: 500.0, type: "credit" },
-      { date: "2024-01-10", description: "Gas Station", amount: -45.2, type: "debit" },
-    ],
-  },
-]
+const accountTypeLabels: Record<string, string> = {
+  COURANT: "Checking",
+  EPARGNE: "Savings",
+  NDJANGUI: "Ndjangui",
+  CHEQUE: "Cheque",
+  PLACEMENT: "Placement",
+}
 
-const accountTypeConfig = {
-  checking: {
-    icon: Wallet,
-    color: "bg-blue-500",
-    label: "Checking Account",
-  },
-  savings: {
+const accountTypeConfig: Record<
+  string,
+  { icon: any; color: string; label: string }
+> = {
+  EPARGNE: {
     icon: PiggyBank,
     color: "bg-green-500",
-    label: "Savings Account",
+    label: "Compte Épargne",
   },
-  investment: {
+  COURANT: {
+    icon: Wallet,
+    color: "bg-blue-500",
+    label: "Compte Courant",
+  },
+  NDJANGUI: {
     icon: TrendingUp,
     color: "bg-purple-500",
-    label: "Investment Account",
+    label: "Njangui",
   },
-  credit: {
+  CHEQUE: {
     icon: CreditCard,
     color: "bg-orange-500",
-    label: "Credit Card",
+    label: "Compte Chèque",
+  },
+  PLACEMENT: {
+    icon: TrendingUp,
+    color: "bg-yellow-500",
+    label: "Placement",
   },
 }
 
 export default function AccountsPage() {
-  const [selectedAccount, setSelectedAccount] = useState<(typeof mockAccounts)[0] | null>(null)
+  const [selectedAccount, setSelectedAccount] = useState<(typeof userAccounts)[0] | null>(null)
+  const { user, userAccounts } = useAuth()
+  const router = useRouter()
+  const totalBalance = userAccounts
+    // .filter((account) => account.type !== "credit")
+    .reduce((sum, account) => sum + Number(account.balance), 0)
 
-  const totalBalance = mockAccounts
-    .filter((account) => account.type !== "credit")
-    .reduce((sum, account) => sum + account.balance, 0)
-
-  const totalDebt = mockAccounts
-    .filter((account) => account.type === "credit")
-    .reduce((sum, account) => sum + Math.abs(account.balance), 0)
+  const totalDebt = userAccounts
+    // .filter((account) => account.type === "credit")
+    .reduce((sum, account) => sum + Math.abs(Number(account.balance)), 0)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "XAF",
     }).format(amount)
   }
-
-  const getAccountStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      case "inactive":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
-      case "frozen":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
-    }
+  const uniqueTypes = Array.from(new Set(userAccounts.map(acc => acc.type)))
+  const getAccountStatusColor = (active: boolean) => {
+    return active
+      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+      : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
   }
+
 
   return (
     <div className="p-6 space-y-6">
@@ -219,8 +156,8 @@ export default function AccountsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockAccounts.filter((acc) => acc.status === "active").length}</div>
-            <p className="text-xs text-muted-foreground">Out of {mockAccounts.length} total</p>
+            <div className="text-2xl font-bold">{userAccounts.filter((acc) => acc.rib !== null).length}</div>
+            <p className="text-xs text-muted-foreground">Out of {userAccounts.length} total</p>
           </CardContent>
         </Card>
       </div>
@@ -228,17 +165,27 @@ export default function AccountsPage() {
       {/* Accounts List */}
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="all">All Accounts</TabsTrigger>
-          <TabsTrigger value="checking">Checking</TabsTrigger>
-          <TabsTrigger value="savings">Savings</TabsTrigger>
-          <TabsTrigger value="investment">Investment</TabsTrigger>
-          <TabsTrigger value="credit">Credit Cards</TabsTrigger>
-        </TabsList>
+        {/* Always show "All Accounts" */}
+        <TabsTrigger value="all">All Accounts</TabsTrigger>
+
+        {/* Dynamically generate tabs based on account types */}
+        {uniqueTypes.map((type) => (
+          <TabsTrigger key={type} value={type}>
+            {accountTypeLabels[type] || type}
+          </TabsTrigger>
+        ))}
+      </TabsList>
 
         <TabsContent value="all" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {mockAccounts.map((account) => {
-              const config = accountTypeConfig[account.type as keyof typeof accountTypeConfig]
+            {userAccounts.map((account) => {
+              const config =
+                accountTypeConfig[account.type as keyof typeof accountTypeConfig] ??
+                {
+                  icon: Wallet,
+                  color: "bg-gray-500",
+                  label: account.type,
+                }
               const IconComponent = config.icon
 
               return (
@@ -250,198 +197,64 @@ export default function AccountsPage() {
                           <IconComponent className="h-5 w-5" />
                         </div>
                         <div>
-                          <CardTitle className="text-lg">{account.name}</CardTitle>
+                          <CardTitle className="text-lg">{config.label}</CardTitle>
                           <CardDescription>
-                            {config.label} • {account.accountNumber}
+                            {account.rib ? `Account Number: XAF{account.rib}` : "No Account Yet"}
                           </CardDescription>
                         </div>
                       </div>
-                      <Badge className={getAccountStatusColor(account.status)}>{account.status}</Badge>
+                      <Badge className={getAccountStatusColor(account.active)}>
+                        {account.active ? "Active" : "Inactive"}
+                      </Badge>
                     </div>
                   </CardHeader>
+
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">
-                          {account.type === "credit" ? "Current Balance" : "Available Balance"}
-                        </p>
-                        <p className={`text-2xl font-bold ${account.balance < 0 ? "text-red-600" : "text-green-600"}`}>
-                          {formatCurrency(account.type === "credit" ? account.availableBalance : account.balance)}
+                        <p className="text-sm text-muted-foreground">Available Balance</p>
+                        <p
+                          className={`text-2xl font-bold ${
+                            Number(account.balance) < 0 ? "text-red-600" : "text-green-600"
+                          }`}
+                        >
+                          {Number(account.balance).toLocaleString("fr-FR", {
+                            style: "currency",
+                            currency: "XAF",
+                          })}
                         </p>
                       </div>
-                      {account.type === "credit" && (
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">Credit Used</p>
-                          <div className="w-24">
-                            <Progress
-                              value={((account.creditLimit! + account.balance) / account.creditLimit!) * 100}
-                              className="h-2"
-                            />
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {Math.round(((account.creditLimit! + account.balance) / account.creditLimit!) * 100)}%
-                            </p>
-                          </div>
-                        </div>
+
+                      {/* Conditional Action Button */}
+                      {account.rib ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/account/${account.id}`)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </Button>
+                      ) : (
+                        <Button
+                          className="bg-blue-600"
+                          size="sm"
+                          onClick={() => router.push("/open-account")}
+                        >
+                          Open Account
+                        </Button>
                       )}
                     </div>
-
-                    {account.type === "credit" && (
-                      <div className="text-sm text-muted-foreground">
-                        <p>Outstanding Balance: {formatCurrency(Math.abs(account.balance))}</p>
-                        <p>Credit Limit: {formatCurrency(account.creditLimit!)}</p>
-                      </div>
-                    )}
 
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
-                          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">
-                            {account.interestRate}% {account.type === "credit" ? "APR" : "APY"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">
-                            Since {new Date(account.openDate).getFullYear()}
+                            Since {new Date(account.createdAt).getFullYear()}
                           </span>
                         </div>
                       </div>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" onClick={() => setSelectedAccount(account)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                              <IconComponent className="h-5 w-5" />
-                              {account.name}
-                            </DialogTitle>
-                            <DialogDescription>
-                              {config.label} • Account {account.accountNumber}
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-6">
-                            {/* Account Summary */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <Card>
-                                <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">Current Balance</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                  <p
-                                    className={`text-xl font-bold ${account.balance < 0 ? "text-red-600" : "text-green-600"}`}
-                                  >
-                                    {formatCurrency(account.balance)}
-                                  </p>
-                                </CardContent>
-                              </Card>
-                              <Card>
-                                <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">Available Balance</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                  <p className="text-xl font-bold">{formatCurrency(account.availableBalance)}</p>
-                                </CardContent>
-                              </Card>
-                              <Card>
-                                <CardHeader className="pb-2">
-                                  <CardTitle className="text-sm">Interest Rate</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                  <p className="text-xl font-bold">
-                                    {account.interestRate}% {account.type === "credit" ? "APR" : "APY"}
-                                  </p>
-                                </CardContent>
-                              </Card>
-                            </div>
-
-                            {/* Recent Activity */}
-                            <div>
-                              <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-                              <div className="rounded-md border">
-                                <Table>
-                                  <TableHeader>
-                                    <TableRow>
-                                      <TableHead>Date</TableHead>
-                                      <TableHead>Description</TableHead>
-                                      <TableHead className="text-right">Amount</TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {account.recentActivity.map((activity, index) => (
-                                      <TableRow key={index}>
-                                        <TableCell className="font-medium">
-                                          {new Date(activity.date).toLocaleDateString()}
-                                        </TableCell>
-                                        <TableCell className="flex items-center gap-2">
-                                          {activity.type === "credit" ? (
-                                            <ArrowDownRight className="h-4 w-4 text-green-600" />
-                                          ) : activity.type === "debit" ? (
-                                            <ArrowUpRight className="h-4 w-4 text-red-600" />
-                                          ) : (
-                                            <Activity className="h-4 w-4 text-gray-600" />
-                                          )}
-                                          {activity.description}
-                                        </TableCell>
-                                        <TableCell
-                                          className={`text-right font-medium ${
-                                            activity.amount > 0
-                                              ? "text-green-600"
-                                              : activity.amount < 0
-                                                ? "text-red-600"
-                                                : "text-gray-600"
-                                          }`}
-                                        >
-                                          {activity.amount !== 0 ? formatCurrency(activity.amount) : "—"}
-                                        </TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </div>
-                            </div>
-
-                            {/* Account Details */}
-                            <div>
-                              <h3 className="text-lg font-semibold mb-4">Account Details</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <p className="text-muted-foreground">Account Number</p>
-                                  <p className="font-medium">{account.accountNumber}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Account Type</p>
-                                  <p className="font-medium">{config.label}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Opened</p>
-                                  <p className="font-medium">{new Date(account.openDate).toLocaleDateString()}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Monthly Fee</p>
-                                  <p className="font-medium">{formatCurrency(account.monthlyFee)}</p>
-                                </div>
-                                {account.type === "credit" && (
-                                  <>
-                                    <div>
-                                      <p className="text-muted-foreground">Credit Limit</p>
-                                      <p className="font-medium">{formatCurrency(account.creditLimit!)}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-muted-foreground">Available Credit</p>
-                                      <p className="font-medium">{formatCurrency(account.availableBalance)}</p>
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
                     </div>
                   </CardContent>
                 </Card>
@@ -454,7 +267,7 @@ export default function AccountsPage() {
         {Object.keys(accountTypeConfig).map((type) => (
           <TabsContent key={type} value={type} className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {mockAccounts
+              {userAccounts
                 .filter((account) => account.type === type)
                 .map((account) => {
                   const config = accountTypeConfig[account.type as keyof typeof accountTypeConfig]
@@ -469,152 +282,64 @@ export default function AccountsPage() {
                               <IconComponent className="h-5 w-5" />
                             </div>
                             <div>
-                              <CardTitle className="text-lg">{account.name}</CardTitle>
+                              <CardTitle className="text-lg">{config.label}</CardTitle>
                               <CardDescription>
-                                {config.label} • {account.accountNumber}
+                                {account.rib ? `Account Number: XAF{account.rib}` : "No Account Yet"}
                               </CardDescription>
                             </div>
                           </div>
-                          <Badge className={getAccountStatusColor(account.status)}>{account.status}</Badge>
+                          <Badge className={getAccountStatusColor(account.active)}>
+                            {account.active ? "Active" : "Inactive"}
+                          </Badge>
                         </div>
                       </CardHeader>
+
                       <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-muted-foreground">
-                              {account.type === "credit" ? "Available Credit" : "Available Balance"}
-                            </p>
+                            <p className="text-sm text-muted-foreground">Available Balance</p>
                             <p
-                              className={`text-2xl font-bold ${account.balance < 0 ? "text-red-600" : "text-green-600"}`}
+                              className={`text-2xl font-bold ${
+                                Number(account.balance) < 0 ? "text-red-600" : "text-green-600"
+                              }`}
                             >
-                              {formatCurrency(account.type === "credit" ? account.availableBalance : account.balance)}
+                              {Number(account.balance).toLocaleString("fr-FR", {
+                                style: "currency",
+                                currency: "XAF",
+                              })}
                             </p>
                           </div>
-                          {account.type === "credit" && (
-                            <div className="text-right">
-                              <p className="text-sm text-muted-foreground">Credit Used</p>
-                              <div className="w-24">
-                                <Progress
-                                  value={((account.creditLimit! + account.balance) / account.creditLimit!) * 100}
-                                  className="h-2"
-                                />
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {Math.round(((account.creditLimit! + account.balance) / account.creditLimit!) * 100)}%
-                                </p>
-                              </div>
-                            </div>
+
+                          {/* Conditional Action Button */}
+                          {account.rib ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => router.push(`/account/${account.id}`)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => router.push("/open-account")}
+                            >
+                              Open Account
+                            </Button>
                           )}
                         </div>
 
                         <div className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1">
-                              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                              <Calendar className="h-4 w-4 text-muted-foreground" />
                               <span className="text-muted-foreground">
-                                {account.interestRate}% {account.type === "credit" ? "APR" : "APY"}
+                                Since {new Date(account.createdAt).getFullYear()}
                               </span>
                             </div>
                           </div>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setSelectedAccount(account)}>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                              <DialogHeader>
-                                <DialogTitle className="flex items-center gap-2">
-                                  <IconComponent className="h-5 w-5" />
-                                  {account.name}
-                                </DialogTitle>
-                                <DialogDescription>
-                                  {config.label} • Account {account.accountNumber}
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-6">
-                                {/* Account Summary */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                  <Card>
-                                    <CardHeader className="pb-2">
-                                      <CardTitle className="text-sm">Current Balance</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <p
-                                        className={`text-xl font-bold ${account.balance < 0 ? "text-red-600" : "text-green-600"}`}
-                                      >
-                                        {formatCurrency(account.balance)}
-                                      </p>
-                                    </CardContent>
-                                  </Card>
-                                  <Card>
-                                    <CardHeader className="pb-2">
-                                      <CardTitle className="text-sm">Available Balance</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <p className="text-xl font-bold">{formatCurrency(account.availableBalance)}</p>
-                                    </CardContent>
-                                  </Card>
-                                  <Card>
-                                    <CardHeader className="pb-2">
-                                      <CardTitle className="text-sm">Interest Rate</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <p className="text-xl font-bold">
-                                        {account.interestRate}% {account.type === "credit" ? "APR" : "APY"}
-                                      </p>
-                                    </CardContent>
-                                  </Card>
-                                </div>
-
-                                {/* Recent Activity */}
-                                <div>
-                                  <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-                                  <div className="rounded-md border">
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow>
-                                          <TableHead>Date</TableHead>
-                                          <TableHead>Description</TableHead>
-                                          <TableHead className="text-right">Amount</TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {account.recentActivity.map((activity, index) => (
-                                          <TableRow key={index}>
-                                            <TableCell className="font-medium">
-                                              {new Date(activity.date).toLocaleDateString()}
-                                            </TableCell>
-                                            <TableCell className="flex items-center gap-2">
-                                              {activity.type === "credit" ? (
-                                                <ArrowDownRight className="h-4 w-4 text-green-600" />
-                                              ) : activity.type === "debit" ? (
-                                                <ArrowUpRight className="h-4 w-4 text-red-600" />
-                                              ) : (
-                                                <Activity className="h-4 w-4 text-gray-600" />
-                                              )}
-                                              {activity.description}
-                                            </TableCell>
-                                            <TableCell
-                                              className={`text-right font-medium ${
-                                                activity.amount > 0
-                                                  ? "text-green-600"
-                                                  : activity.amount < 0
-                                                    ? "text-red-600"
-                                                    : "text-gray-600"
-                                              }`}
-                                            >
-                                              {activity.amount !== 0 ? formatCurrency(activity.amount) : "—"}
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
                         </div>
                       </CardContent>
                     </Card>

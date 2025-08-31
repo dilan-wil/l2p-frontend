@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
+import { useAuth } from "@/hooks/auth-context";
 
 export default function UserDashboardNavbar() {
   // const { reso } = useTheme();
@@ -22,6 +23,7 @@ export default function UserDashboardNavbar() {
   const pathname = usePathname()
   const basePath = `/${pathname.split('/')[1]}`
   const router = useRouter()
+  const { logout, user } = useAuth()
   
   const getInitials = (name: string) => {
     return name
@@ -75,12 +77,11 @@ export default function UserDashboardNavbar() {
                 >
                   <Avatar className="h-10 w-10 border-2 border-primary/20">
                     <AvatarFallback className="bg-primary/10 text-primary">
-                      {/* {userInfo ? (
-                        getInitials(userInfo.name)
+                      {user ? (
+                        getInitials(user.profile.firstName)
                       ) : (
                         <User className="h-6 w-6" />
-                      )} */}
-                      AA
+                      )}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -89,13 +90,13 @@ export default function UserDashboardNavbar() {
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      Dilan Nuadje
+                      {user?.profile.firstName}{" "} {user?.profile.lastName}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      admin@gmail.com
+                      {user?.email}
                     </p>
                     <p className="text-xs font-medium text-primary mt-1 capitalize">
-                      admin
+                      {user?.roleType}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -112,7 +113,7 @@ export default function UserDashboardNavbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  // onClick={}
+                  onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />

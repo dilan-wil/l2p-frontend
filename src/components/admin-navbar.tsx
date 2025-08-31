@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Separator } from "./ui/separator";
+import { useAuth } from "@/hooks/auth-context";
 
 export default function AdminDashboardNavbar() {
   // const { reso } = useTheme();
@@ -22,7 +23,7 @@ export default function AdminDashboardNavbar() {
   const pathname = usePathname()
   const basePath = `/${pathname.split('/')[1]}`
   const router = useRouter()
-  
+  const { logout } = useAuth()
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -112,7 +113,7 @@ export default function AdminDashboardNavbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  // onClick={}
+                  onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />

@@ -40,6 +40,7 @@ import { usePathname } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { useTranslations } from "@/lib/useTranslations"
+import { useAuth } from "@/hooks/auth-context"
 
 const ClientSidebar = () => {
     const pathname = usePathname()
@@ -53,12 +54,13 @@ const ClientSidebar = () => {
         { name: t('client.navigation.transactions'), href: "/dashboard/transactions", icon: History },
         { name: t('client.navigation.profile'), href: "/dashboard/profile", icon: User },
     ]
+  const { logout, user } = useAuth()
 
-    const user= {
-        name: "shadcn",
-        email: "m@example.com",
-        avatar: "/avatars/shadcn.jpg",
-    }
+    // const user= {
+    //     name: "shadcn",
+    //     email: "m@example.com",
+    //     avatar: "/avatars/shadcn.jpg",
+    // }
 
   return (
     <Sidebar collapsible="icon" className="border-r border-blue-100 bg-white/80 backdrop-blur-md">
@@ -166,13 +168,13 @@ const ClientSidebar = () => {
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                     >
                     <Avatar className="h-8 w-8 rounded-lg grayscale">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage src="/avatars/shadcn.jpg" alt={user?.profile.firstName} />
                         <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-medium">{user.name}</span>
+                        <span className="truncate font-medium">{user?.profile.firstName}{" "} {user?.profile.lastName}</span>
                         <span className="text-muted-foreground truncate text-xs">
-                        {user.email}
+                        {user?.email}
                         </span>
                     </div>
                     <EllipsisVertical className="ml-auto size-4" />
@@ -187,13 +189,13 @@ const ClientSidebar = () => {
                     <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarImage src="/avatars/shadcn.jpg" alt={user?.profile.firstName} />
                         <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-medium">{user.name}</span>
+                        <span className="truncate font-medium">{user?.profile.firstName}{" "} {user?.profile.lastName}</span>
                         <span className="text-muted-foreground truncate text-xs">
-                            {user.email}
+                            {user?.email}
                         </span>
                         </div>
                     </div>
@@ -210,7 +212,7 @@ const ClientSidebar = () => {
                     </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={logout}>
                     <LogOutIcon />
                     {t('client.footer.dropdown.logout')}
                     </DropdownMenuItem>
