@@ -10,6 +10,7 @@ import { Calendar, CheckCircle, Clock, FileText, Mail, Phone, User, XCircle, Eye
 import { useEffect, useState } from "react"
 import { useAuth } from "@/hooks/auth-context"
 import axios from "axios"
+import Link from "next/link"
 
 export default function Page() {
     const [pendingUsers, setPendingUsers] = useState<any[]>([])
@@ -401,7 +402,7 @@ export default function Page() {
                                         <Separator />
 
                                         {/* Emergency Contact Section */}
-                                        <div>
+                                        {/* <div>
                                           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                                             <Phone className="w-5 h-5 text-blue-600" />
                                             Emergency Contact
@@ -424,7 +425,7 @@ export default function Page() {
                                               </p>
                                             </div>
                                           </div>
-                                        </div>
+                                        </div> */}
 
                                         <Separator />
 
@@ -437,30 +438,34 @@ export default function Page() {
                                           <div className="space-y-4">
                                             {/* ID Card Front & Back */}
                                             <div className="grid grid-cols-2 gap-4">
-                                              <div className="space-y-2 cursor-pointer">
-                                                <label className="text-sm font-medium text-gray-600">
-                                                  ID Card (Front)
-                                                </label>
-                                                <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
-                                                  <img
-                                                    src={user.uploadedDocuments.idCardFront || "/placeholder.svg"}
-                                                    alt="ID Card Front"
-                                                    className="w-full h-48 object-cover"
-                                                  />
+                                              <Link target="_blank" href={user.uploadedDocuments.idCardFront}>
+                                                <div className="space-y-2 cursor-pointer">
+                                                  <label className="text-sm font-medium text-gray-600">
+                                                    ID Card (Front)
+                                                  </label>
+                                                  <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                                    <img
+                                                      src={user.uploadedDocuments.idCardFront || "/placeholder.svg"}
+                                                      alt="ID Card Front"
+                                                      className="w-full h-48 object-cover"
+                                                    />
+                                                  </div>
                                                 </div>
-                                              </div>
-                                              <div className="space-y-2">
-                                                <label className="text-sm font-medium text-gray-600">
-                                                  ID Card (Back)
-                                                </label>
-                                                <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
-                                                  <img
-                                                    src={user.uploadedDocuments.idCardBack || "/placeholder.svg"}
-                                                    alt="ID Card Back"
-                                                    className="w-full h-48 object-cover"
-                                                  />
+                                              </Link>
+                                              <Link target="_blank" href={user.uploadedDocuments.idCardBack}>
+                                                <div className="space-y-2">
+                                                  <label className="text-sm font-medium text-gray-600">
+                                                    ID Card (Back)
+                                                  </label>
+                                                  <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                                    <img
+                                                      src={user.uploadedDocuments.idCardBack || "/placeholder.svg"}
+                                                      alt="ID Card Back"
+                                                      className="w-full h-48 object-cover"
+                                                    />
+                                                  </div>
                                                 </div>
-                                              </div>
+                                                </Link>
                                             </div>
 
                                             {/* Other Documents */}
