@@ -18,6 +18,7 @@ export default function Page() {
     const [processingUserId, setProcessingUserId] = useState<string | null>(null)
     const [pendingVerifications, setPendingVerifications] = useState<any>([])
     const [reviewingUser, setReviewingUser] = useState<any | null>(null)
+    const [isDialogOpened, setIsDialogOpened] = useState(false)
     const { accessToken, user } = useAuth()
     useEffect(() => {
       
@@ -52,6 +53,7 @@ export default function Page() {
         console.error("Error approving user:", error);
       } finally {
         setProcessingUserId(null);
+        setIsDialogOpened(false)
       }
     };
 
@@ -287,13 +289,13 @@ export default function Page() {
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Sheet>
+                                <Sheet onOpenChange={setIsDialogOpened}>
                                   <SheetTrigger asChild>
                                     <Button
                                       size="sm"
                                       variant="outline"
                                       className="border-blue-200 text-blue-600 hover:bg-blue-50 bg-transparent"
-                                      onClick={() => setReviewingUser(user)}
+                                      onClick={() => {setReviewingUser(user); setIsDialogOpened(true)}}
                                     >
                                       <Ellipsis className="w-3 h-3 mr-1" />
                                     </Button>
@@ -307,26 +309,28 @@ export default function Page() {
                                       <SheetDescription>
                                         Review personal information and uploaded documents to verify identity
                                       </SheetDescription>
-                                      <div className="w-full border-gray-200 flex gap-3 shadow-sm">
-                                        <Button
-                                          variant="destructive"
-                                          onClick={() => handleReject(user.id)}
-                                          disabled={processingUserId === user.id}
-                                          className="flex-1 px-6"
-                                        >
-                                          <XCircle className="w-4 h-4 mr-2" />
-                                          {processingUserId === user.userId ? "Processing..." : "Reject"}
-                                        </Button>
+                                      {user.status === "PENDING" &&
+                                        <div className="w-full border-gray-200 flex gap-3 shadow-sm">
+                                          <Button
+                                            variant="destructive"
+                                            onClick={() => handleReject(user.id)}
+                                            disabled={processingUserId === user.id}
+                                            className="flex-1 px-6"
+                                          >
+                                            <XCircle className="w-4 h-4 mr-2" />
+                                            {processingUserId === user.userId ? "Processing..." : "Reject"}
+                                          </Button>
 
-                                        <Button
-                                          onClick={() => handleApprove(user.userId)}
-                                          disabled={processingUserId === user.userId}
-                                          className="flex-1 bg-green-600 hover:bg-green-700 px-6"
-                                        >
-                                          <CheckCircle className="w-4 h-4 mr-2" />
-                                          {processingUserId === user.userId ? "Processing..." : "Approve"}
-                                        </Button>
-                                      </div>
+                                          <Button
+                                            onClick={() => handleApprove(user.userId)}
+                                            disabled={processingUserId === user.userId}
+                                            className="flex-1 bg-green-600 hover:bg-green-700 px-6"
+                                          >
+                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                            {processingUserId === user.userId ? "Processing..." : "Approve"}
+                                          </Button>
+                                        </div>
+                                      }
                                     </SheetHeader>
                                     
 
@@ -438,7 +442,7 @@ export default function Page() {
                                           <div className="space-y-4">
                                             {/* ID Card Front & Back */}
                                             <div className="grid grid-cols-2 gap-4">
-                                              <Link target="_blank" href={user.uploadedDocuments.idCardFront}>
+                                              <Link target="_blank" href={user.uploadedDocuments.idCardFront || "/placeholder.svg"}>
                                                 <div className="space-y-2 cursor-pointer">
                                                   <label className="text-sm font-medium text-gray-600">
                                                     ID Card (Front)
@@ -452,7 +456,7 @@ export default function Page() {
                                                   </div>
                                                 </div>
                                               </Link>
-                                              <Link target="_blank" href={user.uploadedDocuments.idCardBack}>
+                                              <Link target="_blank" href={user.uploadedDocuments.idCardBack || "/placeholder.svg"}>
                                                 <div className="space-y-2">
                                                   <label className="text-sm font-medium text-gray-600">
                                                     ID Card (Back)
