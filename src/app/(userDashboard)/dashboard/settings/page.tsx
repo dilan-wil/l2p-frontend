@@ -9,7 +9,6 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,7 +76,6 @@ export default function SettingsPage() {
     confirm: false,
   })
   const [isSaving, setIsSaving] = useState(false)
-  const { toast } = useToast()
 
   const handleSettingChange = (category: string, setting: string, value: any) => {
     setSettings((prev) => ({
@@ -102,28 +100,28 @@ export default function SettingsPage() {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setIsSaving(false)
 
-    toast({
-      title: "Settings Updated",
-      description: "Your preferences have been successfully saved.",
-    })
+    // toast({
+    //   title: "Settings Updated",
+    //   description: "Your preferences have been successfully saved.",
+    // })
   }
 
   const handlePasswordUpdate = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "New password and confirmation do not match.",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Password Mismatch",
+      //   description: "New password and confirmation do not match.",
+      //   variant: "destructive",
+      // })
       return
     }
 
     if (passwordData.newPassword.length < 8) {
-      toast({
-        title: "Password Too Short",
-        description: "Password must be at least 8 characters long.",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Password Too Short",
+      //   description: "Password must be at least 8 characters long.",
+      //   variant: "destructive",
+      // })
       return
     }
 
@@ -138,21 +136,21 @@ export default function SettingsPage() {
       confirmPassword: "",
     })
 
-    toast({
-      title: "Password Updated",
-      description: "Your password has been successfully changed.",
-    })
+    // toast({
+    //   title: "Password Updated",
+    //   description: "Your password has been successfully changed.",
+    // })
   }
 
   const handleAccountDeactivation = async () => {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    toast({
-      title: "Account Deactivated",
-      description: "Your account has been deactivated. You can reactivate it by logging in again.",
-      variant: "destructive",
-    })
+    // toast({
+    //   title: "Account Deactivated",
+    //   description: "Your account has been deactivated. You can reactivate it by logging in again.",
+    //   variant: "destructive",
+    // })
   }
 
   return (
