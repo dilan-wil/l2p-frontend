@@ -138,8 +138,10 @@ const AdminSidebar = () => {
             className="w-full justify-start text-red-600 hover:bg-red-50"
             asChild
           >
+            <span className="flex items-center">
               <LogOut className="h-4 w-4 mr-3" />
               {t('admin.footer.sign_out')}
+            </span>
           </Button>
         </div>
       </SidebarFooter>
