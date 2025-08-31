@@ -234,18 +234,18 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       const updatedFormData = { ...formData }
 
       // upload front cni if it's a File
-      if (formData.frontImage instanceof File) {
-        const frontRef = ref(storage, `cni/${Date.now()}-front-${formData.frontImage.name}`)
-        await uploadBytes(frontRef, formData.frontImage)
-        updatedFormData.frontImage = await getDownloadURL(frontRef)
-      }
+      // if (formData.frontImage instanceof File) {
+      //   const frontRef = ref(storage, `cni/${Date.now()}-front-${formData.frontImage.name}`)
+      //   await uploadBytes(frontRef, formData.frontImage)
+      //   updatedFormData.frontImage = await getDownloadURL(frontRef)
+      // }
 
       // upload back cni if it's a File
-      if (formData.backImage instanceof File) {
-        const backRef = ref(storage, `cni/${Date.now()}-back-${formData.backImage.name}`)
-        await uploadBytes(backRef, formData.backImage)
-        updatedFormData.backImage = await getDownloadURL(backRef)
-      }
+      // if (formData.backImage instanceof File) {
+      //   const backRef = ref(storage, `cni/${Date.now()}-back-${formData.backImage.name}`)
+      //   await uploadBytes(backRef, formData.backImage)
+      //   updatedFormData.backImage = await getDownloadURL(backRef)
+      // }
 
       // finally call onSubmit with updated URLs
       onSubmit(updatedFormData)

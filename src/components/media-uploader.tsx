@@ -15,6 +15,7 @@ export default function MediaUploader({
   setMedia,
   type = "image",
   courseId,
+  
 }: MediaUploaderProps) {
   const { uploadFile, deleteFile, uploading, progress, error, clearError } = useMediaUpload()
   const [preview, setPreview] = useState<string | null>(null)

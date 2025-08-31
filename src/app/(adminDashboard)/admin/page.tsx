@@ -17,11 +17,11 @@ import Link from "next/link"
 
 const mockAdminData = {
   stats: {
-    totalMembers: 2847,
-    activeLoans: 156,
-    pendingKyc: 23,
-    monthlyDisbursements: 45600000,
-    collections: 38200000,
+    totalMembers: 0,
+    activeLoans: 0,
+    pendingKyc: 0,
+    monthlyDisbursements: 0,
+    collections: 0,
     par30: 2.3,
   },
   recentActivity: [
@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
               <div className="text-2xl font-bold">{mockAdminData.stats.totalMembers.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
                 <TrendingUp className="inline h-3 w-3 mr-1" />
-                +12% from last month
+                +0% from last month
               </p>
             </CardContent>
           </Card>
@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
               <div className="text-2xl font-bold">{mockAdminData.stats.activeLoans}</div>
               <p className="text-xs text-muted-foreground">
                 <TrendingUp className="inline h-3 w-3 mr-1" />
-                +8% from last month
+                +0% from last month
               </p>
             </CardContent>
           </Card>
