@@ -118,9 +118,9 @@ export default function DepositDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button className="w-full bg-blue-500 cursor-pointer hover:bg-blue-600 gap-2">
           <Wallet className="h-4 w-4" />
-          Deposit
+          <span className="hidden md:block ">Deposit</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -204,7 +204,7 @@ export default function DepositDialog({
               <Button
                 onClick={handleDeposit}
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 bg-blue-500 hover:bg-blue-600"
               >
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Confirm Deposit

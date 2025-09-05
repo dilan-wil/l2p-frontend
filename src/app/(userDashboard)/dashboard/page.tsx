@@ -1,354 +1,656 @@
-"use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+"use client";
+
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  PiggyBank,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Bell,
   CreditCard,
+  DollarSign,
+  PiggyBank,
   TrendingUp,
   ArrowUpRight,
-  ArrowDownRight,
+  ArrowDownLeft,
   Plus,
+  Send,
+  Download,
+  Settings,
+  User,
   Eye,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react"
-import Link from "next/link"
-import { useAuth } from "@/hooks/auth-context"
+  EyeOff,
+} from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
+import { useAuth } from "@/hooks/auth-context";
+import { getInitials } from "@/functions/getInitials";
+import { formatCurrency } from "@/functions/formatCurrency";
+import { useRouter } from "next/navigation";
+import { maskCardNumber } from "@/functions/maskCardNumber";
+import DepositDialog from "@/components/dialogs/deposit-dialog";
+import TransferDialog from "@/components/dialogs/transfer-dialog";
 
 // Mock data
-const mockData = {
-  user: {
-    name: "Marie Dubois",
-    savingsBalance: 450000,
-    loanBalance: 0,
-    totalDeposits: 850000,
-    creditScore: 720,
-  },
-  recentTransactions: [
-    {
-      id: "1",
-      type: "deposit",
-      description: "Mobile Money Deposit",
-      amount: 25000,
-      date: "2024-01-15",
-      status: "completed",
-      method: "MTN Money",
-    },
-    {
-      id: "2",
-      type: "withdrawal",
-      description: "Cash Withdrawal",
-      amount: -15000,
-      date: "2024-01-14",
-      status: "completed",
-      method: "Branch",
-    },
-    {
-      id: "3",
-      type: "loan_payment",
-      description: "Loan Repayment",
-      amount: -12500,
-      date: "2024-01-13",
-      status: "completed",
-      method: "Auto Debit",
-    },
-    {
-      id: "4",
-      type: "deposit",
-      description: "Salary Deposit",
-      amount: 180000,
-      date: "2024-01-12",
-      status: "pending",
-      method: "Bank Transfer",
-    },
-  ],
-  notifications: [
-    {
-      id: "1",
-      title: "Loan Payment Due",
-      message: "Your loan payment of 12,500 XAF is due in 3 days",
-      type: "warning",
-      date: "2024-01-15",
-      read: false,
-    },
-    {
-      id: "2",
-      title: "Deposit Successful",
-      message: "Your deposit of 25,000 XAF has been processed",
-      type: "success",
-      date: "2024-01-15",
-      read: false,
-    },
-    {
-      id: "3",
-      title: "Monthly Statement Ready",
-      message: "Your December statement is now available",
-      type: "info",
-      date: "2024-01-14",
-      read: true,
-    },
-  ],
-  loanInfo: {
-    nextPayment: 12500,
-    nextPaymentDate: "2024-01-18",
-    remainingPayments: 8,
-    interestRate: 2.5,
-  },
-}
+const mockUser = {
+  name: "Sarah Johnson",
+  email: "sarah.johnson@email.com",
+  avatar: "/professional-woman-avatar.png",
+  notifications: 3,
+};
 
-export default function DashboardPage() {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "XAF",
-      minimumFractionDigits: 0,
-    }).format(amount)
-  }
-  const { user } = useAuth()
+const mockAccounts = [
+  {
+    id: 1,
+    name: "Primary Checking",
+    type: "Checking",
+    balance: 12450.75,
+    accountNumber: "****1234",
+  },
+  {
+    id: 2,
+    name: "High Yield Savings",
+    type: "Savings",
+    balance: 45230.2,
+    accountNumber: "****5678",
+  },
+  {
+    id: 3,
+    name: "Investment Portfolio",
+    type: "Investment",
+    balance: 89750.5,
+    accountNumber: "****9012",
+  },
+];
 
-  const loanProgress = ((12 - mockData.loanInfo.remainingPayments) / 12) * 100
+const mockTransactions = [
+  {
+    id: 1,
+    date: "2024-01-15",
+    description: "Direct Deposit - Salary",
+    amount: 5200.0,
+    type: "credit",
+    status: "completed",
+  },
+  {
+    id: 2,
+    date: "2024-01-14",
+    description: "Grocery Store Purchase",
+    amount: -127.45,
+    type: "debit",
+    status: "completed",
+  },
+  {
+    id: 3,
+    date: "2024-01-13",
+    description: "Online Transfer to Savings",
+    amount: -1000.0,
+    type: "transfer",
+    status: "completed",
+  },
+  {
+    id: 4,
+    date: "2024-01-12",
+    description: "ATM Withdrawal",
+    amount: -200.0,
+    type: "debit",
+    status: "completed",
+  },
+  {
+    id: 5,
+    date: "2024-01-11",
+    description: "Investment Dividend",
+    amount: 450.75,
+    type: "credit",
+    status: "pending",
+  },
+];
+
+const mockChartData = [
+  { month: "Jul", income: 5200, expenses: 3800 },
+  { month: "Aug", income: 5200, expenses: 4100 },
+  { month: "Sep", income: 5200, expenses: 3600 },
+  { month: "Oct", income: 5200, expenses: 4200 },
+  { month: "Nov", income: 5200, expenses: 3900 },
+  { month: "Dec", income: 5200, expenses: 4500 },
+  { month: "Jan", income: 5200, expenses: 3700 },
+];
+
+const mockBalanceData = [
+  { month: "Jul", balance: 142000 },
+  { month: "Aug", balance: 143100 },
+  { month: "Sep", balance: 144600 },
+  { month: "Oct", balance: 145400 },
+  { month: "Nov", balance: 146900 },
+  { month: "Dec", balance: 147400 },
+  { month: "Jan", balance: 147431 },
+];
+
+export default function BankingDashboard() {
+  const [showBalance, setShowBalance] = useState(true);
+  const [depositAmount, setDepositAmount] = useState("");
+  const [transferAmount, setTransferAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState("");
+  const { user, userAccounts, accessToken } = useAuth();
+  const router = useRouter();
+
+  const totalBalance = userAccounts
+    .filter((acc) => acc.rib)
+    .reduce((sum, account) => sum + Number(account.balance), 0);
+  const availableFunds = userAccounts
+    .filter(
+      (acc) => acc.rib && (acc.type === "CHEQUE" || acc.type === "COURANT")
+    )
+    .reduce((sum, account) => sum + Number(account.balance), 0);
+  const recentTransactionsCount = mockTransactions.filter(
+    (t) => t.status === "completed"
+  ).length;
+  const pendingTransfers = mockTransactions.filter(
+    (t) => t.status === "pending"
+  ).length;
+
+  const handleDeposit = () => {
+    if (!depositAmount || !selectedAccount) {
+      // toast({
+      //   title: "Error",
+      //   description: "Please fill in all required fields.",
+      //   variant: "destructive",
+      // })
+      return;
+    }
+    // toast({
+    //   title: "Deposit Successful",
+    //   description: `$${depositAmount} has been deposited to your account.`,
+    // })
+    setDepositAmount("");
+    setSelectedAccount("");
+  };
+
+  const handleTransfer = () => {
+    if (!transferAmount || !selectedAccount) {
+      // toast({
+      //   title: "Error",
+      //   description: "Please fill in all required fields.",
+      //   variant: "destructive",
+      // })
+      return;
+    }
+    // toast({
+    //   title: "Transfer Initiated",
+    //   description: `$${transferAmount} transfer has been initiated.`,
+    // })
+    setTransferAmount("");
+    setSelectedAccount("");
+  };
+
+  const handleWithdraw = () => {
+    if (!withdrawAmount || !selectedAccount) {
+      // toast({
+      //   title: "Error",
+      //   description: "Please fill in all required fields.",
+      //   variant: "destructive",
+      // })
+      return;
+    }
+    // toast({
+    //   title: "Withdrawal Processed",
+    //   description: `$${withdrawAmount} has been withdrawn from your account.`,
+    // })
+    setWithdrawAmount("");
+    setSelectedAccount("");
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Section */}
-      <div>
-        <h1 className="text-3xl font-bold text-blue-700">Welcome back, {user?.profile.firstName}!</h1>
-        <p className="text-gray-600">Here's your financial overview for today.</p>
-      </div>
-
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-green-50 border-green-200 shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-700">Savings Balance</CardTitle>
-            <PiggyBank className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-800">{formatCurrency(0)}</div>
-            <p className="text-xs text-green-600 flex items-center">
-              <TrendingUp className="inline h-3 w-3 mr-1" />
-              {/* +2.5% from last month */}
+    <div className="min-h-screen bg-background">
+      <main className="container mx-auto px-4 space-y-8">
+        <div className="w-full bg-blue-500 text-white rounded-xl shadow-md p-6 flex flex-col md:flex-row items-center justify-between">
+          <div className="space-y-2">
+            <h1 className="text-2xl md:text-3xl font-bold">
+              Welcome back, {user?.profile.firstName}!
+            </h1>
+            <p className="text-sm md:text-base text-blue-100">
+              Here’s your financial overview for today.
             </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-red-50 border-red-200 shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-red-700">Active Loan</CardTitle>
-            <CreditCard className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-800">{formatCurrency(mockData.user.loanBalance)}</div>
-            <p className="text-xs text-red-600">{mockData.loanInfo.remainingPayments} payments remaining</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-blue-50 border-blue-200 shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700">Total Deposits</CardTitle>
-            <ArrowUpRight className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-800">{formatCurrency(mockData.user.totalDeposits)}</div>
-            <p className="text-xs text-blue-600">Lifetime deposits</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-purple-50 border-purple-200 shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700">Credit Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-800">{mockData.user.creditScore}</div>
-            <p className="text-xs">
-              <span className="text-purple-600 font-semibold">Excellent rating</span>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Transactions */}
-        {/* <Card className="lg:col-span-2 border-gray-200 shadow-lg">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-blue-700">Recent Transactions</CardTitle>
-              <CardDescription className="text-gray-500">Your latest account activity</CardDescription>
-            </div>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white" size="sm" asChild>
-              <Link href="/dashboard/transactions">
-                <Eye className="h-4 w-4 mr-2" />
-                View All
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockData.recentTransactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        transaction.type === "deposit"
-                          ? "bg-green-100 text-green-600"
-                          : transaction.type === "withdrawal"
-                          ? "bg-red-100 text-red-600"
-                          : "bg-blue-100 text-blue-600"
-                      }`}
-                    >
-                      {transaction.type === "deposit" ? (
-                        <ArrowUpRight className="h-4 w-4" />
-                      ) : (
-                        <ArrowDownRight className="h-4 w-4" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm text-gray-800">{transaction.description}</p>
-                      <p className="text-xs text-gray-500">
-                        {transaction.method} • {transaction.date}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`font-medium ${transaction.amount > 0 ? "text-green-600" : "text-red-600"}`}>
-                      {transaction.amount > 0 ? "+" : ""}
-                      {formatCurrency(Math.abs(transaction.amount))}
-                    </p>
-                    <Badge
-                      variant={transaction.status === "completed" ? "default" : "secondary"}
-                      className={`text-xs ${
-                        transaction.status === "completed" ? "bg-green-600 text-white" : "bg-yellow-500 text-white"
-                      }`}
-                    >
-                      {transaction.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card> */}
-
-        {/* Notifications & Quick Actions */}
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card className="border-gray-200 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-blue-700">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button className="w-full justify-start bg-green-600 hover:bg-green-700 text-white" asChild>
-                <Link href="/dashboard/savings/deposit">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Make Deposit
-                </Link>
-              </Button>
+          </div>
+          <div className="mt-4 md:mt-0 flex text-black items-center space-x-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage
+                src={mockUser.avatar}
+                alt={user?.profile.firstName}
+              />
+              <AvatarFallback>
+                {getInitials(user?.profile.firstName ?? "")}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Balance
+              </CardTitle>
               <Button
-                variant="outline"
-                className="w-full justify-start border-red-400 text-red-600 hover:bg-red-50"
-                asChild
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 cursor-pointer"
+                onClick={() => setShowBalance(!showBalance)}
               >
-                <Link href="/dashboard/savings/withdraw">
-                  <ArrowDownRight className="h-4 w-4 mr-2" />
-                  Request Withdrawal
-                </Link>
+                {showBalance ? (
+                  <Eye className="h-4 w-4" />
+                ) : (
+                  <EyeOff className="h-4 w-4" />
+                )}
               </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start border-purple-400 text-purple-600 hover:bg-purple-50"
-                asChild
-              >
-                <Link href="/dashboard/loans/apply">
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Apply for Loan
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Loan Progress */}
-          <Card className="border-gray-200 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-red-700">Loan Progress</CardTitle>
-              <CardDescription className="text-gray-500">Current loan repayment status</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-600">Progress</span>
-                  <span className="font-semibold text-red-700">{Math.round(loanProgress)}%</span>
-                </div>
-                <Progress value={loanProgress} className="h-2 [&>div]:bg-red-600 [&>div]:rounded-full" />
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Next Payment:</span>
-                  <span className="font-medium text-gray-800">{formatCurrency(mockData.loanInfo.nextPayment)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Due Date:</span>
-                  <span className="font-medium text-gray-800">{mockData.loanInfo.nextPaymentDate}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Remaining:</span>
-                  <span className="font-medium text-gray-800">{mockData.loanInfo.remainingPayments} payments</span>
-                </div>
-              </div>
-              <Button size="sm" className="w-full bg-red-600 hover:bg-red-700 text-white" asChild>
-                <Link href="/dashboard/loans/repay">Make Payment</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Notifications */}
-          {/* <Card className="border-gray-200 shadow-md">
-            <CardHeader>
-              <CardTitle className="text-purple-700">Notifications</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {mockData.notifications.slice(0, 3).map((notification) => (
-                  <div
-                    key={notification.id}
-                    className="flex items-start space-x-3 p-2 rounded-lg hover:bg-gray-50 transition"
-                  >
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        notification.type === "warning"
-                          ? "bg-yellow-100 text-yellow-600"
-                          : notification.type === "success"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-blue-100 text-blue-600"
-                      }`}
-                    >
-                      {notification.type === "warning" ? (
-                        <AlertCircle className="h-4 w-4" />
-                      ) : notification.type === "success" ? (
-                        <CheckCircle className="h-4 w-4" />
-                      ) : (
-                        <Clock className="h-4 w-4" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800">{notification.title}</p>
-                      <p className="text-xs text-gray-600">{notification.message}</p>
-                      <p className="text-xs text-gray-400 mt-1">{notification.date}</p>
-                    </div>
-                    {!notification.read && <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0" />}
-                  </div>
-                ))}
+              <div className="text-2xl font-bold text-foreground">
+                {showBalance ? `${formatCurrency(totalBalance)}` : "••••••"}
               </div>
+              <p className="text-xs text-muted-foreground flex items-center">
+                <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
+                +2.5% from last month
+              </p>
             </CardContent>
-          </Card> */}
+          </Card>
+
+          <Card className="hidden md:block hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Available Funds
+              </CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {showBalance ? `${formatCurrency(availableFunds)}` : "••••••"}
+              </div>
+              <p className="text-xs text-muted-foreground">Primary Checking</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hidden md:block hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Recent Transactions
+              </CardTitle>
+              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{0}</div>
+              <p className="text-xs text-muted-foreground">This month</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hidden md:block hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Pending Transfers
+              </CardTitle>
+              <ArrowDownLeft className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{0}</div>
+              <p className="text-xs text-muted-foreground">
+                Awaiting processing
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-8 order-2 lg:order-1">
+            {/* Accounts Overview */}
+            {/* Recent Transactions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>Your latest account activity</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockTransactions.map((transaction) => (
+                      <TableRow
+                        key={transaction.id}
+                        className="hover:bg-muted/50"
+                      >
+                        <TableCell className="text-sm text-muted-foreground">
+                          {new Date(transaction.date).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {transaction.description}
+                        </TableCell>
+                        <TableCell
+                          className={`font-semibold ${
+                            transaction.amount > 0
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {transaction.amount > 0 ? "+" : ""}
+                          {formatCurrency(transaction.amount)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              transaction.status === "completed"
+                                ? "default"
+                                : "secondary"
+                            }
+                            className={
+                              transaction.status === "completed"
+                                ? "bg-green-500"
+                                : "bg-yellow-500"
+                            }
+                          >
+                            {transaction.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>My Accounts</span>
+                  <Button
+                    onClick={() => router.push("/dashboard/accounts")}
+                    variant="outline"
+                    size="sm"
+                  >
+                    View Accounts
+                  </Button>
+                </CardTitle>
+                <CardDescription>Manage your banking accounts</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {userAccounts
+                  .filter((acc) => acc.rib)
+                  .map((account) => (
+                    <div
+                      key={account.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="p-2 bg-primary/10 rounded-full">
+                          {(account.type === "COURANT" ||
+                            account.type === "CHEQUE") && (
+                            <CreditCard className="h-5 w-5 text-primary" />
+                          )}
+                          {(account.type === "EPARGNE" ||
+                            account.type === "NDJANGUI") && (
+                            <PiggyBank className="h-5 w-5 text-primary" />
+                          )}
+                          {account.type === "PLACEMENT" && (
+                            <TrendingUp className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {account.type}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {account.type} • {maskCardNumber(account.rib ?? "")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-foreground">
+                          {showBalance
+                            ? `${formatCurrency(Number(account.balance))}`
+                            : "••••••"}
+                        </p>
+                        <Badge
+                          variant={
+                            account.type === "PLACEMENT"
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
+                          {account.type}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-8 order-1 lg:order-2">
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Manage your finances</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {/* Deposit Dialog */}
+                <DepositDialog
+                  accounts={userAccounts}
+                  accessToken={accessToken}
+                />
+
+                {/* Transfer Dialog */}
+                <TransferDialog accounts={userAccounts} />
+
+                {/* Withdraw Dialog */}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="w-full justify-start bg-transparent"
+                      variant="outline"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Withdraw Cash
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Withdraw Cash</DialogTitle>
+                      <DialogDescription>
+                        Withdraw money from your account
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="withdraw-account">Select Account</Label>
+                        <Select
+                          value={selectedAccount}
+                          onValueChange={setSelectedAccount}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose account" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {mockAccounts.map((account) => (
+                              <SelectItem
+                                key={account.id}
+                                value={account.id.toString()}
+                              >
+                                {account.name} ({account.accountNumber})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="withdraw-amount">Amount</Label>
+                        <Input
+                          id="withdraw-amount"
+                          type="number"
+                          placeholder="0.00"
+                          value={withdrawAmount}
+                          onChange={(e) => setWithdrawAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={handleWithdraw}>Withdraw</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
+
+            {/* Profile Widget */}
+            <Card className="hidden md:block ">
+              <CardHeader>
+                <CardTitle>Profile & Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={mockUser.avatar || "/placeholder.svg"}
+                      alt={user?.profile.firstName}
+                    />
+                    <AvatarFallback>
+                      {getInitials(user?.profile.firstName ?? "")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">
+                      {user?.profile.firstName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {user?.email}
+                    </p>
+                    <Progress value={85} className="mt-2" />
+                    {/* <p className="text-xs text-muted-foreground mt-1">
+                      Profile 85% complete
+                    </p> */}
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 bg-transparent"
+                    onClick={() => router.push("/dashboard/profile")}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 bg-transparent"
+                    onClick={() => router.push("/dashboard/settings")}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Analytics Charts */}
+            <Card className="hidden md:block">
+              <CardHeader>
+                <CardTitle>Financial Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="spending" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="spending">
+                      Income vs Expenses
+                    </TabsTrigger>
+                    <TabsTrigger value="balance">Balance Trend</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="spending" className="space-y-4">
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={mockChartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="income" fill="hsl(var(--chart-1))" />
+                        <Bar dataKey="expenses" fill="hsl(var(--chart-2))" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </TabsContent>
+                  <TabsContent value="balance" className="space-y-4">
+                    <ResponsiveContainer width="100%" height={200}>
+                      <AreaChart data={mockBalanceData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Area
+                          type="monotone"
+                          dataKey="balance"
+                          stroke="hsl(var(--chart-3))"
+                          fill="hsl(var(--chart-3))"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
     </div>
-  )
+  );
 }

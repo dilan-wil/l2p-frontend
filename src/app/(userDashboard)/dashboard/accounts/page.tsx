@@ -119,7 +119,7 @@ export default function AccountsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Accounts</h1>
-          <p className="text-muted-foreground">
+          <p className="hidden md:block text-muted-foreground">
             Manage and view all your financial accounts
           </p>
         </div>

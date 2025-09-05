@@ -68,9 +68,12 @@ export default function TransferDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2 bg-transparent">
+        <Button
+          variant="outline"
+          className="w-full cursor-pointer gap-2 bg-transparent"
+        >
           <ArrowRightLeft className="h-4 w-4" />
-          Transfer
+          <span className="hidden md:block ">Transfer</span>
         </Button>
       </DialogTrigger>
 
@@ -134,7 +137,10 @@ export default function TransferDialog({
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button onClick={handleConfirm} className="flex-1">
+            <Button
+              onClick={handleConfirm}
+              className="flex-1  bg-blue-500 hover:bg-blue-600"
+            >
               Confirm Transfer
             </Button>
             <Button

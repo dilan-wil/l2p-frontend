@@ -127,7 +127,7 @@ const ClientSidebar = () => {
                       asChild
                       className={`w-full ${
                         isActive
-                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          ? "bg-blue-500 text-white hover:bg-blue-600 hover:text-white"
                           : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
                       }`}
                     >
