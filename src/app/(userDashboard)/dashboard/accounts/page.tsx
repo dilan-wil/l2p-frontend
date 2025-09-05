@@ -1,10 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +18,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Progress } from "@/components/ui/progress"
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
 import {
   Wallet,
   CreditCard,
@@ -28,10 +41,12 @@ import {
   Building,
   Calendar,
   Activity,
-} from "lucide-react"
-import { useAuth } from "@/hooks/auth-context"
-import { useRouter } from "next/navigation"
-import AccountCard from "@/components/accounts/account-card"
+} from "lucide-react";
+import { useAuth } from "@/hooks/auth-context";
+import { useRouter } from "next/navigation";
+import AccountCard from "@/components/accounts/account-card";
+import DepositDialog from "@/components/dialogs/deposit-dialog";
+import TransferDialog from "@/components/dialogs/transfer-dialog";
 
 const accountTypeLabels: Record<string, string> = {
   COURANT: "Checking",
@@ -39,7 +54,7 @@ const accountTypeLabels: Record<string, string> = {
   NDJANGUI: "Ndjangui",
   CHEQUE: "Cheque",
   PLACEMENT: "Placement",
-}
+};
 
 const accountTypeConfig: Record<
   string,
@@ -70,45 +85,52 @@ const accountTypeConfig: Record<
     color: "bg-yellow-500",
     label: "Placement",
   },
-}
+};
 
 export default function AccountsPage() {
-  const [selectedAccount, setSelectedAccount] = useState<(typeof userAccounts)[0] | null>(null)
-  const { user, userAccounts, openAccount } = useAuth()
-  const router = useRouter()
+  const [selectedAccount, setSelectedAccount] = useState<
+    (typeof userAccounts)[0] | null
+  >(null);
+  const { user, userAccounts, accessToken } = useAuth();
+  const router = useRouter();
   const totalBalance = userAccounts
     // .filter((account) => account.type !== "credit")
-    .reduce((sum, account) => sum + Number(account.balance), 0)
+    .reduce((sum, account) => sum + Number(account.balance), 0);
 
   const totalDebt = userAccounts
     // .filter((account) => account.type === "credit")
-    .reduce((sum, account) => sum + Math.abs(Number(account.balance)), 0)
+    .reduce((sum, account) => sum + Math.abs(Number(account.balance)), 0);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "XAF",
-    }).format(amount)
-  }
-  const uniqueTypes = Array.from(new Set(userAccounts.map(acc => acc.type)))
+    }).format(amount);
+  };
+  const uniqueTypes = Array.from(new Set(userAccounts.map((acc) => acc.type)));
   const getAccountStatusColor = (active: boolean) => {
     return active
       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-  }
-
+      : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+  };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Accounts</h1>
-          <p className="text-muted-foreground">Manage and view all your financial accounts</p>
+          <p className="text-muted-foreground">
+            Manage and view all your financial accounts
+          </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Faire un Dépot
-        </Button>
+        <div className="flex justify-between gap-5">
+          <div>
+            <DepositDialog accounts={userAccounts} accessToken={accessToken} />
+          </div>
+          <div>
+            <TransferDialog accounts={userAccounts} />
+          </div>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -121,7 +143,9 @@ export default function AccountsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(totalBalance)}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(totalBalance)}
+            </div>
             <p className="text-xs text-muted-foreground">Across all accounts</p>
           </CardContent>
         </Card>
@@ -133,8 +157,12 @@ export default function AccountsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(totalDebt)}</div>
-            <p className="text-xs text-muted-foreground">Credit card balances</p>
+            <div className="text-2xl font-bold text-red-600">
+              {formatCurrency(totalDebt)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Credit card balances
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -145,8 +173,12 @@ export default function AccountsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalBalance - totalDebt)}</div>
-            <p className="text-xs text-muted-foreground">Assets minus liabilities</p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalBalance - totalDebt)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Assets minus liabilities
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -157,8 +189,12 @@ export default function AccountsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userAccounts.filter((acc) => acc.rib !== null).length}</div>
-            <p className="text-xs text-muted-foreground">Out of {userAccounts.length} total</p>
+            <div className="text-2xl font-bold">
+              {userAccounts.filter((acc) => acc.rib !== null).length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Out of {userAccounts.length} total
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -166,32 +202,30 @@ export default function AccountsPage() {
       {/* Accounts List */}
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList>
-        {/* Always show "All Accounts" */}
-        <TabsTrigger value="all">All Accounts</TabsTrigger>
+          {/* Always show "All Accounts" */}
+          <TabsTrigger value="all">All Accounts</TabsTrigger>
 
-        {/* Dynamically generate tabs based on account types */}
-        {uniqueTypes.map((type) => (
-          <TabsTrigger key={type} value={type}>
-            {accountTypeLabels[type] || type}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+          {/* Dynamically generate tabs based on account types */}
+          {uniqueTypes.map((type) => (
+            <TabsTrigger key={type} value={type}>
+              {accountTypeLabels[type] || type}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
         <TabsContent value="all" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {userAccounts.map((account) => {
-              const config =
-                accountTypeConfig[account.type as keyof typeof accountTypeConfig] ??
-                {
-                  icon: Wallet,
-                  color: "bg-gray-500",
-                  label: account.type,
-                }
-              const IconComponent = config.icon
+              const config = accountTypeConfig[
+                account.type as keyof typeof accountTypeConfig
+              ] ?? {
+                icon: Wallet,
+                color: "bg-gray-500",
+                label: account.type,
+              };
+              const IconComponent = config.icon;
 
-              return (
-                <AccountCard account={account} config={config} />
-              )
+              return <AccountCard account={account} config={config} />;
             })}
           </div>
         </TabsContent>
@@ -203,17 +237,18 @@ export default function AccountsPage() {
               {userAccounts
                 .filter((account) => account.type === type)
                 .map((account) => {
-                  const config = accountTypeConfig[account.type as keyof typeof accountTypeConfig]
-                  const IconComponent = config.icon
+                  const config =
+                    accountTypeConfig[
+                      account.type as keyof typeof accountTypeConfig
+                    ];
+                  const IconComponent = config.icon;
 
-                  return (
-                    <AccountCard account={account} config={config} />
-                  )
+                  return <AccountCard account={account} config={config} />;
                 })}
             </div>
           </TabsContent>
         ))}
       </Tabs>
     </div>
-  )
+  );
 }

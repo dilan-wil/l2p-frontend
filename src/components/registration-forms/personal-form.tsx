@@ -1,77 +1,93 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { User, Phone, Briefcase, Users, CreditCard, PenTool, ChevronLeft, ChevronRight, KeyRound } from "lucide-react"
-import { useTranslations } from "@/lib/useTranslations"
-import SignatureField from "../signature"
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
-import { storage } from "@/functions/firebase"
-import MediaUploader from "../media-uploader"
+import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  User,
+  Phone,
+  Briefcase,
+  Users,
+  CreditCard,
+  PenTool,
+  ChevronLeft,
+  ChevronRight,
+  KeyRound,
+} from "lucide-react";
+import { useTranslations } from "@/lib/useTranslations";
+import SignatureField from "../signature";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/functions/firebase";
+import MediaUploader from "../media-uploader";
 
 interface PersonalFormData {
   // Personal Information
-  firstName: string
-  lastName: string
-  birthDate: string
-  birthPlace: string
-  nationality: string
-  resident: string
-  ppe: string
-  idNumber: string
-  idIssuer: string
-  idDate: string
-  phone: string
-  email: string
-  password: string,
-  address: string
-  city: string
-  profession: string
-  employer: string
-  maritalStatus: string
-  children: number
-  salary: number
-  documentType: string
-  frontImage: File | null | string
-  backImage: File | null | string
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  birthPlace: string;
+  nationality: string;
+  resident: string;
+  ppe: string;
+  idNumber: string;
+  idIssuer: string;
+  idDate: string;
+  phone: string;
+  email: string;
+  password: string;
+  address: string;
+  city: string;
+  profession: string;
+  employer: string;
+  maritalStatus: string;
+  children: number;
+  salary: number;
+  documentType: string;
+  frontImage: File | null | string;
+  backImage: File | null | string;
 
   // Emergency Contacts
-  contact1Name: string
-  contact1Phone: string
-  contact1Email: string
-  contact1Relation: string
-  contact2Name: string
-  contact2Phone: string
-  contact2Email: string
-  contact2Relation: string
+  contact1Name: string;
+  contact1Phone: string;
+  contact1Email: string;
+  contact1Relation: string;
+  contact2Name: string;
+  contact2Phone: string;
+  contact2Email: string;
+  contact2Relation: string;
 
   // Account Types
-  accountEpargne: boolean
-  accountCourant: boolean
-  accountNDjangui: boolean
-  accountCheque: boolean
-  accountPlacement: boolean
+  accountEpargne: boolean;
+  accountCourant: boolean;
+  accountNDjangui: boolean;
+  accountCheque: boolean;
+  accountPlacement: boolean;
 
   // Signature
-  signature: string
-  termsAccepted: boolean
+  signature: string;
+  termsAccepted: boolean;
 }
 
 interface FormErrors {
-  [key: string]: string
+  [key: string]: string;
 }
 
 interface PersonalAccountFormProps {
-  onSubmit: (data: PersonalFormData) => void
-  isSubmitting: boolean
+  onSubmit: (data: PersonalFormData) => void;
+  isSubmitting: boolean;
 }
 
 const Step = ({
@@ -79,8 +95,13 @@ const Step = ({
   icon,
   isActive,
   children,
-}: { title: string; icon: React.ReactNode; isActive: boolean; children: React.ReactNode }) => {
-  if (!isActive) return null
+}: {
+  title: string;
+  icon: React.ReactNode;
+  isActive: boolean;
+  children: React.ReactNode;
+}) => {
+  if (!isActive) return null;
 
   return (
     <Card className="border-2 ">
@@ -92,14 +113,17 @@ const Step = ({
         {children}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default function PersonalAccountForm({ onSubmit, isSubmitting }: PersonalAccountFormProps) {
-  const [currentStep, setCurrentStep] = useState(0)
-    const t = useTranslations('registration')
-    const g = useTranslations()
-  
+export default function PersonalAccountForm({
+  onSubmit,
+  isSubmitting,
+}: PersonalAccountFormProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+  const t = useTranslations("registration");
+  const g = useTranslations();
+
   const [formData, setFormData] = useState<PersonalFormData>({
     firstName: "",
     lastName: "",
@@ -138,100 +162,139 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
     termsAccepted: false,
     frontImage: null,
     backImage: null,
-    documentType: ""
-  })
+    documentType: "",
+  });
 
-  const [errors, setErrors] = useState<FormErrors>({})
-  const signatureRef = useRef<HTMLCanvasElement>(null)
+  const [errors, setErrors] = useState<FormErrors>({});
+  const signatureRef = useRef<HTMLCanvasElement>(null);
 
   const steps = [
-    { key: "personalInfo", title: t("steps.personalInfo"), icon: <User className="h-5 w-5 text-blue-600" /> },
-    { key: "contactInfo", title: t("steps.contactInfo"), icon: <Phone className="h-5 w-5 text-blue-600" /> },
-    { key: "professionalInfo",title: t("steps.professionalInfo"),icon: <Briefcase className="h-5 w-5 text-blue-600" />,},
-    { key: "emergencyContacts",title: t("steps.emergencyContacts"),icon: <Users className="h-5 w-5 text-blue-600" />,},
-    { key: "accountTypes", title: t("steps.accountTypes"), icon: <CreditCard className="h-5 w-5 text-blue-600" /> },
-    { key: "kycVerification", title: "Kyc verification", icon: <KeyRound className="h-5 w-5 text-blue-600" /> },
-    { key: "signature", title: t("steps.signature"), icon: <PenTool className="h-5 w-5 text-blue-600" /> },
-  ]
+    {
+      key: "personalInfo",
+      title: t("steps.personalInfo"),
+      icon: <User className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      key: "contactInfo",
+      title: t("steps.contactInfo"),
+      icon: <Phone className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      key: "professionalInfo",
+      title: t("steps.professionalInfo"),
+      icon: <Briefcase className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      key: "emergencyContacts",
+      title: t("steps.emergencyContacts"),
+      icon: <Users className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      key: "accountTypes",
+      title: t("steps.accountTypes"),
+      icon: <CreditCard className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      key: "kycVerification",
+      title: "Kyc verification",
+      icon: <KeyRound className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      key: "signature",
+      title: t("steps.signature"),
+      icon: <PenTool className="h-5 w-5 text-blue-600" />,
+    },
+  ];
 
-  const totalSteps = steps.length
+  const totalSteps = steps.length;
 
-  const handleInputChange = (field: keyof PersonalFormData, value: string | boolean | number| File) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  const handleInputChange = (
+    field: keyof PersonalFormData,
+    value: string | boolean | number | File
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }))
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }
+  };
 
   const validateCurrentStep = (): boolean => {
-    const newErrors: FormErrors = {}
+    const newErrors: FormErrors = {};
 
     switch (currentStep) {
       case 0: // Personal Information
-        if (!formData.firstName.trim()) newErrors.fullName = "Prénoms requis"
-        if (!formData.lastName.trim()) newErrors.fullName = "Noms requis"
-        if (!formData.birthDate) newErrors.birthDate = "Date de naissance requise"
-        if (!formData.birthPlace.trim()) newErrors.birthPlace = "Lieu de naissance requis"
-        if (!formData.nationality.trim()) newErrors.nationality = "Nationalité requise"
-        if (!formData.resident) newErrors.resident = "Statut de résident requis"
-        if (!formData.ppe) newErrors.ppe = "Statut PPE requis"
-        if (!formData.idNumber.trim()) newErrors.idNumber = "Numéro d'identité requis"
-        if (!formData.idDate) newErrors.idDate = "Date d'émission requise"
-        break
+        if (!formData.firstName.trim()) newErrors.fullName = "Prénoms requis";
+        if (!formData.lastName.trim()) newErrors.fullName = "Noms requis";
+        if (!formData.birthDate)
+          newErrors.birthDate = "Date de naissance requise";
+        if (!formData.birthPlace.trim())
+          newErrors.birthPlace = "Lieu de naissance requis";
+        if (!formData.nationality.trim())
+          newErrors.nationality = "Nationalité requise";
+        if (!formData.resident)
+          newErrors.resident = "Statut de résident requis";
+        if (!formData.ppe) newErrors.ppe = "Statut PPE requis";
+        if (!formData.idNumber.trim())
+          newErrors.idNumber = "Numéro d'identité requis";
+        if (!formData.idDate) newErrors.idDate = "Date d'émission requise";
+        break;
       case 1: // Contact Information
-        if (!formData.phone.trim()) newErrors.phone = "Téléphone requis"
-        if (!formData.email.trim()) newErrors.email = "Email requis"
-        if (!formData.password.trim()) newErrors.password = "Mot de passe requis"
-        if (!formData.address.trim()) newErrors.address = "Adresse requise"
-        if (!formData.city.trim()) newErrors.city = "Ville/Quartier requis"
-        break
+        if (!formData.phone.trim()) newErrors.phone = "Téléphone requis";
+        if (!formData.email.trim()) newErrors.email = "Email requis";
+        if (!formData.password.trim())
+          newErrors.password = "Mot de passe requis";
+        if (!formData.address.trim()) newErrors.address = "Adresse requise";
+        if (!formData.city.trim()) newErrors.city = "Ville/Quartier requis";
+        break;
       case 5:
         if (
           !formData?.frontImage ||
-          (typeof formData.frontImage === "string" && !formData.frontImage.trim())
+          (typeof formData.frontImage === "string" &&
+            !formData.frontImage.trim())
         ) {
-          newErrors.frontImage = "Document d'identité requis"
+          newErrors.frontImage = "Document d'identité requis";
         }
 
         if (
           !formData?.backImage ||
           (typeof formData.backImage === "string" && !formData.backImage.trim())
         ) {
-          newErrors.backImage = "Document d'identité requis"
+          newErrors.backImage = "Document d'identité requis";
         }
-        break
+        break;
       case 6: // Signature
-        if (!formData.termsAccepted) newErrors.termsAccepted = "Vous devez accepter les conditions"
-        break
+        if (!formData.termsAccepted)
+          newErrors.termsAccepted = "Vous devez accepter les conditions";
+        break;
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const nextStep = () => {
-    console.log(currentStep)
-    console.log(totalSteps)
+    console.log(currentStep);
+    console.log(totalSteps);
     if (validateCurrentStep() && currentStep < totalSteps - 1) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(currentStep + 1);
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log(currentStep)
-    console.log(formData)
-    if (!validateCurrentStep()) return
+    e.preventDefault();
+    console.log(currentStep);
+    console.log(formData);
+    if (!validateCurrentStep()) return;
 
     try {
       // clone to avoid mutating original directly
-      const updatedFormData = { ...formData }
+      const updatedFormData = { ...formData };
 
       // upload front cni if it's a File
       // if (formData.frontImage instanceof File) {
@@ -248,24 +311,24 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       // }
 
       // finally call onSubmit with updated URLs
-      onSubmit(updatedFormData)
-
+      onSubmit(updatedFormData);
     } catch (error) {
-      console.error("Error uploading files:", error)
+      console.error("Error uploading files:", error);
     }
-  }
-
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">{steps[currentStep]?.title}</span>
+          <span className="text-sm font-medium text-gray-700">
+            {steps[currentStep]?.title}
+          </span>
           <span className="text-sm text-gray-500">
             {currentStep + 1} / {totalSteps}
           </span>
         </div>
-        <Progress value={((currentStep) / totalSteps) * 100} className="w-full" />
+        <Progress value={(currentStep / totalSteps) * 100} className="w-full" />
       </div>
 
       {/* Personal Information Step */}
@@ -283,7 +346,11 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("firstName", e.target.value)}
               className={errors.firstName ? "border-destructive" : ""}
             />
-            {errors.firstName && <p className="text-sm text-destructive mt-1">{errors.firstName}</p>}
+            {errors.firstName && (
+              <p className="text-sm text-destructive mt-1">
+                {errors.firstName}
+              </p>
+            )}
           </div>
 
           <div>
@@ -294,7 +361,11 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("lastName", e.target.value)}
               className={errors.secondName ? "border-destructive" : ""}
             />
-            {errors.secondName && <p className="text-sm text-destructive mt-1">{errors.secondName}</p>}
+            {errors.secondName && (
+              <p className="text-sm text-destructive mt-1">
+                {errors.secondName}
+              </p>
+            )}
           </div>
 
           <div>
@@ -306,7 +377,11 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("birthDate", e.target.value)}
               className={errors.birthDate ? "border-destructive" : ""}
             />
-            {errors.birthDate && <p className="text-sm text-destructive mt-1">{errors.birthDate}</p>}
+            {errors.birthDate && (
+              <p className="text-sm text-destructive mt-1">
+                {errors.birthDate}
+              </p>
+            )}
           </div>
 
           <div>
@@ -317,7 +392,11 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("birthPlace", e.target.value)}
               className={errors.birthPlace ? "border-destructive" : ""}
             />
-            {errors.birthPlace && <p className="text-sm text-destructive mt-1">{errors.birthPlace}</p>}
+            {errors.birthPlace && (
+              <p className="text-sm text-destructive mt-1">
+                {errors.birthPlace}
+              </p>
+            )}
           </div>
 
           <div>
@@ -328,13 +407,24 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("nationality", e.target.value)}
               className={errors.nationality ? "border-destructive" : ""}
             />
-            {errors.nationality && <p className="text-sm text-destructive mt-1">{errors.nationality}</p>}
+            {errors.nationality && (
+              <p className="text-sm text-destructive mt-1">
+                {errors.nationality}
+              </p>
+            )}
           </div>
 
           <div>
             <Label htmlFor="resident">{t("fields.resident")} *</Label>
-            <Select value={formData.resident} onValueChange={(value) => handleInputChange("resident", value)}>
-              <SelectTrigger className={errors.resident ? "border-destructive" : ""}>
+            <Select
+              value={formData.resident}
+              onValueChange={(value) => handleInputChange("resident", value)}
+            >
+              <SelectTrigger
+                className={
+                  errors.resident ? "border-destructive w-full" : "w-full"
+                }
+              >
                 <SelectValue placeholder={g("common.select")} />
               </SelectTrigger>
               <SelectContent>
@@ -342,13 +432,20 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
                 <SelectItem value="no">{g("common.no")}</SelectItem>
               </SelectContent>
             </Select>
-            {errors.resident && <p className="text-sm text-destructive mt-1">{errors.resident}</p>}
+            {errors.resident && (
+              <p className="text-sm text-destructive mt-1">{errors.resident}</p>
+            )}
           </div>
 
           <div>
             <Label htmlFor="ppe">{t("fields.ppe")} *</Label>
-            <Select value={formData.ppe} onValueChange={(value) => handleInputChange("ppe", value)}>
-              <SelectTrigger className={errors.ppe ? "border-destructive" : ""}>
+            <Select
+              value={formData.ppe}
+              onValueChange={(value) => handleInputChange("ppe", value)}
+            >
+              <SelectTrigger
+                className={errors.ppe ? "border-destructive w-full" : "w-full"}
+              >
                 <SelectValue placeholder={g("common.select")} />
               </SelectTrigger>
               <SelectContent>
@@ -356,7 +453,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
                 <SelectItem value="no">{g("common.no")}</SelectItem>
               </SelectContent>
             </Select>
-            {errors.ppe && <p className="text-sm text-destructive mt-1">{errors.ppe}</p>}
+            {errors.ppe && (
+              <p className="text-sm text-destructive mt-1">{errors.ppe}</p>
+            )}
           </div>
 
           <div>
@@ -367,7 +466,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("idNumber", e.target.value)}
               className={errors.idNumber ? "border-destructive" : ""}
             />
-            {errors.idNumber && <p className="text-sm text-destructive mt-1">{errors.idNumber}</p>}
+            {errors.idNumber && (
+              <p className="text-sm text-destructive mt-1">{errors.idNumber}</p>
+            )}
           </div>
 
           <div>
@@ -388,7 +489,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("idDate", e.target.value)}
               className={errors.idDate ? "border-destructive" : ""}
             />
-            {errors.idDate && <p className="text-sm text-destructive mt-1">{errors.idDate}</p>}
+            {errors.idDate && (
+              <p className="text-sm text-destructive mt-1">{errors.idDate}</p>
+            )}
           </div>
         </div>
       </Step>
@@ -408,7 +511,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("phone", e.target.value)}
               className={errors.phone ? "border-destructive" : ""}
             />
-            {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
+            {errors.phone && (
+              <p className="text-sm text-destructive mt-1">{errors.phone}</p>
+            )}
           </div>
 
           <div>
@@ -420,7 +525,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("email", e.target.value)}
               className={errors.email ? "border-destructive" : ""}
             />
-            {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-sm text-destructive mt-1">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -432,7 +539,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("password", e.target.value)}
               className={errors.password ? "border-destructive" : ""}
             />
-            {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
+            {errors.password && (
+              <p className="text-sm text-destructive mt-1">{errors.password}</p>
+            )}
           </div>
 
           <div className="md:col-span-2">
@@ -443,7 +552,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("address", e.target.value)}
               className={errors.address ? "border-destructive" : ""}
             />
-            {errors.address && <p className="text-sm text-destructive mt-1">{errors.address}</p>}
+            {errors.address && (
+              <p className="text-sm text-destructive mt-1">{errors.address}</p>
+            )}
           </div>
 
           <div>
@@ -454,7 +565,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("city", e.target.value)}
               className={errors.city ? "border-destructive" : ""}
             />
-            {errors.city && <p className="text-sm text-destructive mt-1">{errors.city}</p>}
+            {errors.city && (
+              <p className="text-sm text-destructive mt-1">{errors.city}</p>
+            )}
           </div>
         </div>
       </Step>
@@ -474,7 +587,11 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               onChange={(e) => handleInputChange("profession", e.target.value)}
               className={errors.profession ? "border-destructive" : ""}
             />
-            {errors.profession && <p className="text-sm text-destructive mt-1">{errors.profession}</p>}
+            {errors.profession && (
+              <p className="text-sm text-destructive mt-1">
+                {errors.profession}
+              </p>
+            )}
           </div>
 
           <div>
@@ -488,15 +605,28 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
 
           <div>
             <Label htmlFor="maritalStatus">{t("fields.maritalStatus")}</Label>
-            <Select value={formData.maritalStatus} onValueChange={(value) => handleInputChange("maritalStatus", value)}>
-              <SelectTrigger>
+            <Select
+              value={formData.maritalStatus}
+              onValueChange={(value) =>
+                handleInputChange("maritalStatus", value)
+              }
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder={g("common.select")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="single">{t("maritalStatus.single")}</SelectItem>
-                <SelectItem value="married">{t("maritalStatus.married")}</SelectItem>
-                <SelectItem value="divorced">{t("maritalStatus.divorced")}</SelectItem>
-                <SelectItem value="widowed">{t("maritalStatus.widowed")}</SelectItem>
+                <SelectItem value="single">
+                  {t("maritalStatus.single")}
+                </SelectItem>
+                <SelectItem value="married">
+                  {t("maritalStatus.married")}
+                </SelectItem>
+                <SelectItem value="divorced">
+                  {t("maritalStatus.divorced")}
+                </SelectItem>
+                <SelectItem value="widowed">
+                  {t("maritalStatus.widowed")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -508,7 +638,12 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               type="number"
               min="0"
               value={formData.children}
-              onChange={(e) => handleInputChange("children", Number.parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                handleInputChange(
+                  "children",
+                  Number.parseInt(e.target.value) || 0
+                )
+              }
             />
           </div>
 
@@ -519,7 +654,12 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               type="number"
               min="0"
               value={formData.salary}
-              onChange={(e) => handleInputChange("salary", Number.parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                handleInputChange(
+                  "salary",
+                  Number.parseInt(e.target.value) || 0
+                )
+              }
             />
           </div>
         </div>
@@ -533,78 +673,110 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
       >
         <div className="space-y-6">
           <div>
-            <h4 className="text-md font-medium text-gray-900 mb-4">{t("fields.contact1")}</h4>
+            <h4 className="text-md font-medium text-gray-900 mb-4">
+              {t("fields.contact1")}
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="contact1Name">{t("fields.contactName")}</Label>
                 <Input
                   id="contact1Name"
                   value={formData.contact1Name}
-                  onChange={(e) => handleInputChange("contact1Name", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact1Name", e.target.value)
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="contact1Phone">{t("fields.contactPhone")}</Label>
+                <Label htmlFor="contact1Phone">
+                  {t("fields.contactPhone")}
+                </Label>
                 <Input
                   id="contact1Phone"
                   value={formData.contact1Phone}
-                  onChange={(e) => handleInputChange("contact1Phone", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact1Phone", e.target.value)
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="contact1Email">{t("fields.contactEmail")}</Label>
+                <Label htmlFor="contact1Email">
+                  {t("fields.contactEmail")}
+                </Label>
                 <Input
                   id="contact1Email"
                   type="email"
                   value={formData.contact1Email}
-                  onChange={(e) => handleInputChange("contact1Email", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact1Email", e.target.value)
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="contact1Relation">{t("fields.contactRelation")}</Label>
+                <Label htmlFor="contact1Relation">
+                  {t("fields.contactRelation")}
+                </Label>
                 <Input
                   id="contact1Relation"
                   value={formData.contact1Relation}
-                  onChange={(e) => handleInputChange("contact1Relation", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact1Relation", e.target.value)
+                  }
                 />
               </div>
             </div>
           </div>
 
           <div>
-            <h4 className="text-md font-medium text-gray-900 mb-4">{t("fields.contact2")}</h4>
+            <h4 className="text-md font-medium text-gray-900 mb-4">
+              {t("fields.contact2")}
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="contact2Name">{t("fields.contactName")}</Label>
                 <Input
                   id="contact2Name"
                   value={formData.contact2Name}
-                  onChange={(e) => handleInputChange("contact2Name", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact2Name", e.target.value)
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="contact2Phone">{t("fields.contactPhone")}</Label>
+                <Label htmlFor="contact2Phone">
+                  {t("fields.contactPhone")}
+                </Label>
                 <Input
                   id="contact2Phone"
                   value={formData.contact2Phone}
-                  onChange={(e) => handleInputChange("contact2Phone", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact2Phone", e.target.value)
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="contact2Email">{t("fields.contactEmail")}</Label>
+                <Label htmlFor="contact2Email">
+                  {t("fields.contactEmail")}
+                </Label>
                 <Input
                   id="contact2Email"
                   type="email"
                   value={formData.contact2Email}
-                  onChange={(e) => handleInputChange("contact2Email", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact2Email", e.target.value)
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="contact2Relation">{t("fields.contactRelation")}</Label>
+                <Label htmlFor="contact2Relation">
+                  {t("fields.contactRelation")}
+                </Label>
                 <Input
                   id="contact2Relation"
                   value={formData.contact2Relation}
-                  onChange={(e) => handleInputChange("contact2Relation", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("contact2Relation", e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -619,41 +791,57 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
         isActive={currentStep === 4}
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-600 mb-4">{t("fields.selectAccountTypes")}</p>
+          <p className="text-sm text-gray-600 mb-4">
+            {t("fields.selectAccountTypes")}
+          </p>
 
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="accountEpargne"
                 checked={formData.accountEpargne}
-                onCheckedChange={(checked) => handleInputChange("accountEpargne", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("accountEpargne", checked as boolean)
+                }
               />
-              <Label htmlFor="accountEpargne">{t("accountTypes.epargne")}</Label>
+              <Label htmlFor="accountEpargne">
+                {t("accountTypes.epargne")}
+              </Label>
             </div>
 
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="accountCourant"
                 checked={formData.accountCourant}
-                onCheckedChange={(checked) => handleInputChange("accountCourant", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("accountCourant", checked as boolean)
+                }
               />
-              <Label htmlFor="accountCourant">{t("accountTypes.courant")}</Label>
+              <Label htmlFor="accountCourant">
+                {t("accountTypes.courant")}
+              </Label>
             </div>
 
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="accountNDjangui"
                 checked={formData.accountNDjangui}
-                onCheckedChange={(checked) => handleInputChange("accountNDjangui", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("accountNDjangui", checked as boolean)
+                }
               />
-              <Label htmlFor="accountNDjangui">{t("accountTypes.ndjangui")}</Label>
+              <Label htmlFor="accountNDjangui">
+                {t("accountTypes.ndjangui")}
+              </Label>
             </div>
 
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="accountCheque"
                 checked={formData.accountCheque}
-                onCheckedChange={(checked) => handleInputChange("accountCheque", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("accountCheque", checked as boolean)
+                }
               />
               <Label htmlFor="accountCheque">{t("accountTypes.cheque")}</Label>
             </div>
@@ -662,20 +850,23 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               <Checkbox
                 id="accountPlacement"
                 checked={formData.accountPlacement}
-                onCheckedChange={(checked) => handleInputChange("accountPlacement", checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleInputChange("accountPlacement", checked as boolean)
+                }
               />
-              <Label htmlFor="accountPlacement">{t("accountTypes.placement")}</Label>
+              <Label htmlFor="accountPlacement">
+                {t("accountTypes.placement")}
+              </Label>
             </div>
           </div>
         </div>
       </Step>
 
-
       {/* KYC Step */}
       <Step
-      title={t("steps.KYC")}
-      icon={<KeyRound className="h-5 w-5 text-blue-600" />}
-      isActive={currentStep === 5}
+        title={t("steps.KYC")}
+        icon={<KeyRound className="h-5 w-5 text-blue-600" />}
+        isActive={currentStep === 5}
       >
         <div className="space-y-6">
           {/* Document type select */}
@@ -684,15 +875,23 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
               {t("fields.documentType")}
             </label>
             <Select
-              onValueChange={(value) => handleInputChange("documentType", value)}
+              onValueChange={(value) =>
+                handleInputChange("documentType", value)
+              }
             >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder={t("fields.documentTypePlaceholder")} />
+              <SelectTrigger className="w-[200px] w-full">
+                <SelectValue
+                  placeholder={t("fields.documentTypePlaceholder")}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="CNI">{t("fields.documents.cni")}</SelectItem>
-                <SelectItem value="passport">{t("fields.documents.passport")}</SelectItem>
-                <SelectItem value="resident">{t("fields.documents.residentCard")}</SelectItem>
+                <SelectItem value="passport">
+                  {t("fields.documents.passport")}
+                </SelectItem>
+                <SelectItem value="resident">
+                  {t("fields.documents.residentCard")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -703,7 +902,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
             <Card className="w-full md:w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
               <CardContent className="w-full m-0 rounded-lg">
                 <MediaUploader
-                  setMedia={(url) => handleInputChange("frontImage", url ? url : "")}
+                  setMedia={(url) =>
+                    handleInputChange("frontImage", url ? url : "")
+                  }
                   type="image"
                 />
               </CardContent>
@@ -718,7 +919,9 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
             <Card className="w-full md:w-2/5 border-none shadow-none group p-0 justify-center items-center gap-3">
               <CardContent className="w-full m-0 rounded-lg">
                 <MediaUploader
-                  setMedia={(url) => handleInputChange("backImage", url ? url : "")}
+                  setMedia={(url) =>
+                    handleInputChange("backImage", url ? url : "")
+                  }
                   type="image"
                 />
               </CardContent>
@@ -740,8 +943,12 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
           <div>
             <Label>{t("fields.signature")}</Label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                <SignatureField onChange={(data) => handleInputChange('signature', data)}/>
-              <p className="text-sm text-gray-500 mt-2">{t("fields.signatureInstruction")}</p>
+              <SignatureField
+                onChange={(data) => handleInputChange("signature", data)}
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                {t("fields.signatureInstruction")}
+              </p>
             </div>
           </div>
 
@@ -749,13 +956,17 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
             <Checkbox
               id="termsAccepted"
               checked={formData.termsAccepted}
-              onCheckedChange={(checked) => handleInputChange("termsAccepted", checked as boolean)}
+              onCheckedChange={(checked) =>
+                handleInputChange("termsAccepted", checked as boolean)
+              }
             />
             <Label htmlFor="termsAccepted" className="text-sm">
               {t("fields.acceptTerms")} *
             </Label>
           </div>
-          {errors.termsAccepted && <p className="text-sm text-destructive">{errors.termsAccepted}</p>}
+          {errors.termsAccepted && (
+            <p className="text-sm text-destructive">{errors.termsAccepted}</p>
+          )}
         </div>
       </Step>
 
@@ -773,20 +984,26 @@ export default function PersonalAccountForm({ onSubmit, isSubmitting }: Personal
         </Button>
 
         {currentStep < totalSteps - 1 && (
-          <Button type="button" onClick={nextStep} className="flex items-center gap-2">
+          <Button
+            type="button"
+            onClick={nextStep}
+            className="flex items-center gap-2"
+          >
             {t("navigation.next")}
             <ChevronRight className="h-4 w-4" />
           </Button>
         )}
-        
+
         {currentStep === totalSteps - 1 && (
-          <Button type="submit" disabled={isSubmitting} className="flex items-center gap-2">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
             {isSubmitting ? g("common.submitting") : g("common.submit")}
           </Button>
         )}
       </div>
     </form>
-  )
+  );
 }
-
-

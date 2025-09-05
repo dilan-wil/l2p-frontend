@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Sidebar,
@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 import {
   BarChart3,
   Bell,
@@ -32,38 +32,70 @@ import {
   User,
   UserCircle,
   Users,
-} from "lucide-react"
-import { Badge } from "./ui/badge"
-import { Button } from "./ui/button"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { useTranslations } from "@/lib/useTranslations"
-import { useAuth } from "@/hooks/auth-context"
+} from "lucide-react";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useTranslations } from "@/lib/useTranslations";
+import { useAuth } from "@/hooks/auth-context";
+
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .substring(0, 2);
+};
 
 const ClientSidebar = () => {
-    const pathname = usePathname()
-    const { isMobile } = useSidebar()
-    const t = useTranslations('sidebar')
-    const navigation = [
-        { name: t('client.navigation.dashboard'), href: "/dashboard", icon: Home },
-        { name: t('client.navigation.account'), href: "/dashboard/accounts", icon: Home },
-        { name: t('client.navigation.savings'), href: "/dashboard/savings", icon: PiggyBank },
-        { name: t('client.navigation.loans'), href: "/dashboard/loans", icon: CreditCard },
-        { name: t('client.navigation.transactions'), href: "/dashboard/transactions", icon: History },
-        { name: t('client.navigation.profile'), href: "/dashboard/profile", icon: User },
-    ]
-  const { logout, user } = useAuth()
+  const pathname = usePathname();
+  const { isMobile } = useSidebar();
+  const t = useTranslations("sidebar");
+  const navigation = [
+    { name: t("client.navigation.dashboard"), href: "/dashboard", icon: Home },
+    {
+      name: t("client.navigation.account"),
+      href: "/dashboard/accounts",
+      icon: Home,
+    },
+    // { name: t('client.navigation.savings'), href: "/dashboard/savings", icon: PiggyBank },
+    // { name: t('client.navigation.loans'), href: "/dashboard/loans", icon: CreditCard },
+    {
+      name: t("client.navigation.transactions"),
+      href: "/dashboard/transactions",
+      icon: History,
+    },
+    {
+      name: t("client.navigation.profile"),
+      href: "/dashboard/profile",
+      icon: User,
+    },
+  ];
+  const { logout, user } = useAuth();
 
-    // const user= {
-    //     name: "shadcn",
-    //     email: "m@example.com",
-    //     avatar: "/avatars/shadcn.jpg",
-    // }
+  // const user= {
+  //     name: "shadcn",
+  //     email: "m@example.com",
+  //     avatar: "/avatars/shadcn.jpg",
+  // }
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-blue-100 bg-white/80 backdrop-blur-md">
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-blue-100 bg-white/80 backdrop-blur-md"
+    >
       <SidebarContent>
         <SidebarHeader className="group-data-[collapsible=icon]:hidden">
           <div className="p-6">
@@ -72,19 +104,23 @@ const ClientSidebar = () => {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <span className="font-bold text-lg text-gray-900">{t('client.title')}</span>
-                <p className="text-sm text-gray-500">{t('client.subtitle')}</p>
+                <span className="font-bold text-lg text-gray-900">
+                  {t("client.title")}
+                </span>
+                <p className="text-sm text-gray-500">{t("client.subtitle")}</p>
               </div>
             </div>
           </div>
         </SidebarHeader>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-600 font-medium">{t('client.sections.user_dashboard')}</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-gray-600 font-medium">
+            {t("client.sections.user_dashboard")}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => {
-                const isActive = pathname === item.href
+                const isActive = pathname === item.href;
                 return (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton
@@ -99,14 +135,17 @@ const ClientSidebar = () => {
                         <item.icon className="w-4 h-4" />
                         <span>{item.name}</span>
                         {item.name === "KYC Queue" && (
-                          <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700">
+                          <Badge
+                            variant="secondary"
+                            className="ml-auto bg-blue-100 text-blue-700"
+                          >
                             3
                           </Badge>
                         )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )
+                );
               })}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -127,7 +166,7 @@ const ClientSidebar = () => {
           >
             <Link href="/dashboard/settings">
               <Settings className="h-4 w-4 mr-3" />
-              {t('client.footer.settings')}
+              {t("client.footer.settings")}
             </Link>
           </Button>
 
@@ -143,7 +182,7 @@ const ClientSidebar = () => {
           >
             <Link href="/dashboard/help">
               <HelpCircle className="h-4 w-4 mr-3" />
-              {t('client.footer.help')}
+              {t("client.footer.help")}
             </Link>
           </Button>
 
@@ -155,74 +194,86 @@ const ClientSidebar = () => {
           >
             <Link href="/login">
               <LogOut className="h-4 w-4 mr-3" />
-              {t('client.footer.sign_out')}
+              {t("client.footer.sign_out")}
             </Link>
           </Button>
         </div>
         <SidebarMenu>
-            <SidebarMenuItem>
-                <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                    >
-                    <Avatar className="h-8 w-8 rounded-lg grayscale">
-                        <AvatarImage src="/avatars/shadcn.jpg" alt={user?.profile.firstName} />
-                        <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar className="h-8 w-8 rounded-lg grayscale">
+                    <AvatarImage
+                      src="/avatars/shadcn.jpg"
+                      alt={user?.profile.firstName}
+                    />
+                    <AvatarFallback className="rounded-lg">
+                      {getInitials(user?.profile.firstName ?? "")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {user?.profile.firstName} {user?.profile.lastName}
+                    </span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {user?.email}
+                    </span>
+                  </div>
+                  <EllipsisVertical className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                side={isMobile ? "bottom" : "right"}
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarImage
+                        src="/avatars/shadcn.jpg"
+                        alt={user?.profile.firstName}
+                      />
+                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-medium">{user?.profile.firstName}{" "} {user?.profile.lastName}</span>
-                        <span className="text-muted-foreground truncate text-xs">
+                      <span className="truncate font-medium">
+                        {user?.profile.firstName} {user?.profile.lastName}
+                      </span>
+                      <span className="text-muted-foreground truncate text-xs">
                         {user?.email}
-                        </span>
+                      </span>
                     </div>
-                    <EllipsisVertical className="ml-auto size-4" />
-                    </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-                    side={isMobile ? "bottom" : "right"}
-                    align="end"
-                    sideOffset={4}
-                >
-                    <DropdownMenuLabel className="p-0 font-normal">
-                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                        <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src="/avatars/shadcn.jpg" alt={user?.profile.firstName} />
-                        <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                        </Avatar>
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-medium">{user?.profile.firstName}{" "} {user?.profile.lastName}</span>
-                        <span className="text-muted-foreground truncate text-xs">
-                            {user?.email}
-                        </span>
-                        </div>
-                    </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <UserCircle />
-                        {t('client.footer.dropdown.account')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <Bell />
-                        {t('client.footer.dropdown.notifications')}
-                    </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>
-                    <LogOutIcon />
-                    {t('client.footer.dropdown.logout')}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-                </DropdownMenu>
-            </SidebarMenuItem>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <UserCircle />
+                    {t("client.footer.dropdown.account")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Bell />
+                    {t("client.footer.dropdown.notifications")}
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                  <LogOutIcon />
+                  {t("client.footer.dropdown.logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  )
-}
+  );
+};
 
-export default ClientSidebar
+export default ClientSidebar;

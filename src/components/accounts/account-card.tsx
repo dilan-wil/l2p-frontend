@@ -1,65 +1,87 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import axios from "axios"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { Button } from "../ui/button"
-import { Badge } from "../ui/badge"
-import {    
-    Card,
+} from "@/components/ui/dialog";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import {
+  Card,
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent, } from "../ui/card"
-import { Calendar, Eye, Loader2 } from "lucide-react"
-import { Account } from "@/types/types"
-import { useAuth } from "@/hooks/auth-context"
+  CardContent,
+} from "../ui/card";
+import { Calendar, Eye, Loader2 } from "lucide-react";
+import { Account } from "@/types/types";
+import { useAuth } from "@/hooks/auth-context";
+import { maskCardNumber } from "@/functions/maskCardNumber";
 
-export default function AccountCard({ account, config } : {account: Account, config: any}) {
-  const router = useRouter()
-  const [openDialog, setOpenDialog] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedBranch, setSelectedBranch] = useState<string>("")
-  const { openAccount } = useAuth()
+export default function AccountCard({
+  account,
+  config,
+}: {
+  account: Account;
+  config: any;
+}) {
+  const router = useRouter();
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState<string>("");
+  const { openAccount } = useAuth();
   const getAccountStatusColor = (active: boolean) => {
     return active
       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
-  }
+      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+  };
 
   const createAccount = async () => {
-    if (!selectedBranch) return
-    setIsLoading(true)
+    if (!selectedBranch) return;
+    setIsLoading(true);
     try {
-      await openAccount(account.type, selectedBranch === "yassa" ? "00077" : "00067")
-      setOpenDialog(false)
-      router.refresh() // refresh the page or fetch accounts again
+      await openAccount(
+        account.type,
+        selectedBranch === "yassa" ? "00077" : "00067"
+      );
+      setOpenDialog(false);
+      router.refresh(); // refresh the page or fetch accounts again
     } catch (err) {
-      console.error("Failed to open account", err)
+      console.error("Failed to open account", err);
     }
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
+
+  const routeToViewPage = () => {
+    if (!account.active) return;
+
+    router.push(`/dashboard/accounts/${account.id}`);
+  };
 
   return (
     <>
       <Card key={account.id} className="hover:shadow-md transition-shadow">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div
+              onClick={routeToViewPage}
+              className="flex cursor-pointer items-center gap-3"
+            >
               <div className={`p-2 rounded-lg ${config.color} text-white`}>
                 <config.icon className="h-5 w-5" />
               </div>
               <div>
                 <CardTitle className="text-lg">{config.label}</CardTitle>
                 <CardDescription>
-                  {account.rib ? `Account Number: XAF ${account.rib}` : "No Account Yet"}
+                  {account.rib
+                    ? `Account Number: ${maskCardNumber(account.rib)}`
+                    : "No Account Yet"}
                 </CardDescription>
               </div>
             </div>
@@ -75,7 +97,9 @@ export default function AccountCard({ account, config } : {account: Account, con
               <p className="text-sm text-muted-foreground">Available Balance</p>
               <p
                 className={`text-2xl font-bold ${
-                  Number(account.balance) < 0 ? "text-red-600" : "text-green-600"
+                  Number(account.balance) < 0
+                    ? "text-red-600"
+                    : "text-green-600"
                 }`}
               >
                 {Number(account.balance).toLocaleString("fr-FR", {
@@ -143,11 +167,11 @@ export default function AccountCard({ account, config } : {account: Account, con
               className="mt-4"
               onClick={createAccount}
             >
-              {isLoading ? <Loader2 className="animate-spin"/> : "Confirm"}
+              {isLoading ? <Loader2 className="animate-spin" /> : "Confirm"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
