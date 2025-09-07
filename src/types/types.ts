@@ -98,8 +98,8 @@ export interface TransactionAccount {
 // Main transaction type
 export interface Transaction {
   id: string;
-  type: "DEPOSIT" | "WITHDRAWAL"; // extend if other types exist
-  status: "PENDING" | "SUCCESS" | "FAILED"; // extend if more statuses exist
+  type: "DEPOSIT" | "WITHDRAWAL" | "TRANSFER";
+  status: "PENDING" | "SUCCESS" | "FAILED";
   amount: string;
   fee: string;
   description: string;

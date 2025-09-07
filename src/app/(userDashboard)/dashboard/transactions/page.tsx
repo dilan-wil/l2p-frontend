@@ -86,13 +86,12 @@ export default function TransactionsPage() {
     }
   };
 
-  const formatAmount = (amount: number) => {
-    const isNegative = amount < 0;
+  const formatAmount = (amount: number, type: string) => {
     const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
       style: "currency",
       currency: "XAF",
     });
-    return isNegative ? `-${formattedAmount}` : formattedAmount;
+    return type === "WITHDRAWAL" ? `-${formattedAmount}` : formattedAmount;
   };
 
   return (
@@ -260,12 +259,15 @@ export default function TransactionsPage() {
                     </TableCell>
                     <TableCell
                       className={`text-right font-medium ${
-                        Number(transaction.amount) > 0
+                        transaction.type !== "DEPOSIT"
                           ? "text-green-600"
                           : "text-red-600"
                       }`}
                     >
-                      {formatAmount(Number(transaction.amount))}
+                      {formatAmount(
+                        Number(transaction.amount),
+                        transaction.type
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
