@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,6 +74,8 @@ import { maskCardNumber } from "@/functions/maskCardNumber";
 import DepositDialog from "@/components/dialogs/deposit-dialog";
 import TransferDialog from "@/components/dialogs/transfer-dialog";
 import WithdrawalDialog from "@/components/dialogs/withdraw-dialog";
+import axios from "axios";
+import { Transaction, TransactionsResponse } from "@/types/types";
 
 // Mock data
 const mockUser = {
@@ -82,73 +84,6 @@ const mockUser = {
   avatar: "/professional-woman-avatar.png",
   notifications: 3,
 };
-
-const mockAccounts = [
-  {
-    id: 1,
-    name: "Primary Checking",
-    type: "Checking",
-    balance: 12450.75,
-    accountNumber: "****1234",
-  },
-  {
-    id: 2,
-    name: "High Yield Savings",
-    type: "Savings",
-    balance: 45230.2,
-    accountNumber: "****5678",
-  },
-  {
-    id: 3,
-    name: "Investment Portfolio",
-    type: "Investment",
-    balance: 89750.5,
-    accountNumber: "****9012",
-  },
-];
-
-const mockTransactions = [
-  {
-    id: 1,
-    date: "2024-01-15",
-    description: "Direct Deposit - Salary",
-    amount: 5200.0,
-    type: "credit",
-    status: "completed",
-  },
-  {
-    id: 2,
-    date: "2024-01-14",
-    description: "Grocery Store Purchase",
-    amount: -127.45,
-    type: "debit",
-    status: "completed",
-  },
-  {
-    id: 3,
-    date: "2024-01-13",
-    description: "Online Transfer to Savings",
-    amount: -1000.0,
-    type: "transfer",
-    status: "completed",
-  },
-  {
-    id: 4,
-    date: "2024-01-12",
-    description: "ATM Withdrawal",
-    amount: -200.0,
-    type: "debit",
-    status: "completed",
-  },
-  {
-    id: 5,
-    date: "2024-01-11",
-    description: "Investment Dividend",
-    amount: 450.75,
-    type: "credit",
-    status: "pending",
-  },
-];
 
 const mockChartData = [
   { month: "Jul", income: 5200, expenses: 3800 },
@@ -172,12 +107,9 @@ const mockBalanceData = [
 
 export default function BankingDashboard() {
   const [showBalance, setShowBalance] = useState(true);
-  const [depositAmount, setDepositAmount] = useState("");
-  const [transferAmount, setTransferAmount] = useState("");
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [selectedAccount, setSelectedAccount] = useState("");
   const { user, userAccounts, accessToken } = useAuth();
   const router = useRouter();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const totalBalance = userAccounts
     .filter((acc) => acc.rib)
@@ -187,63 +119,31 @@ export default function BankingDashboard() {
       (acc) => acc.rib && (acc.type === "CHEQUE" || acc.type === "COURANT")
     )
     .reduce((sum, account) => sum + Number(account.balance), 0);
-  const recentTransactionsCount = mockTransactions.filter(
-    (t) => t.status === "completed"
+
+  const recentTransactionsCount = transactions.filter(
+    (t) => t.status === "SUCCESS"
   ).length;
-  const pendingTransfers = mockTransactions.filter(
-    (t) => t.status === "pending"
+  const pendingTransfers = transactions.filter(
+    (t) => t.status === "PENDING"
   ).length;
 
-  const handleDeposit = () => {
-    if (!depositAmount || !selectedAccount) {
-      // toast({
-      //   title: "Error",
-      //   description: "Please fill in all required fields.",
-      //   variant: "destructive",
-      // })
-      return;
-    }
-    // toast({
-    //   title: "Deposit Successful",
-    //   description: `$${depositAmount} has been deposited to your account.`,
-    // })
-    setDepositAmount("");
-    setSelectedAccount("");
-  };
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await axios.get<TransactionsResponse>(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/my-transactions?page=1&size=5`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+        setTransactions(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch transactions:", err);
+      }
+    };
 
-  const handleTransfer = () => {
-    if (!transferAmount || !selectedAccount) {
-      // toast({
-      //   title: "Error",
-      //   description: "Please fill in all required fields.",
-      //   variant: "destructive",
-      // })
-      return;
-    }
-    // toast({
-    //   title: "Transfer Initiated",
-    //   description: `$${transferAmount} transfer has been initiated.`,
-    // })
-    setTransferAmount("");
-    setSelectedAccount("");
-  };
-
-  const handleWithdraw = () => {
-    if (!withdrawAmount || !selectedAccount) {
-      // toast({
-      //   title: "Error",
-      //   description: "Please fill in all required fields.",
-      //   variant: "destructive",
-      // })
-      return;
-    }
-    // toast({
-    //   title: "Withdrawal Processed",
-    //   description: `$${withdrawAmount} has been withdrawn from your account.`,
-    // })
-    setWithdrawAmount("");
-    setSelectedAccount("");
-  };
+    fetchTransactions();
+  }, [accessToken]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -365,36 +265,36 @@ export default function BankingDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockTransactions.map((transaction) => (
+                    {transactions.map((transaction) => (
                       <TableRow
                         key={transaction.id}
                         className="hover:bg-muted/50"
                       >
                         <TableCell className="text-sm text-muted-foreground">
-                          {new Date(transaction.date).toLocaleDateString()}
+                          {new Date(transaction.createdAt).toLocaleDateString()}
                         </TableCell>
                         <TableCell className="font-medium">
                           {transaction.description}
                         </TableCell>
                         <TableCell
                           className={`font-semibold ${
-                            transaction.amount > 0
+                            Number(transaction.amount) > 0
                               ? "text-green-600"
                               : "text-red-600"
                           }`}
                         >
-                          {transaction.amount > 0 ? "+" : ""}
-                          {formatCurrency(transaction.amount)}
+                          {Number(transaction.amount) > 0 ? "+" : ""}
+                          {formatCurrency(Number(transaction.amount))}
                         </TableCell>
                         <TableCell>
                           <Badge
                             variant={
-                              transaction.status === "completed"
+                              transaction.status === "SUCCESS"
                                 ? "default"
                                 : "secondary"
                             }
                             className={
-                              transaction.status === "completed"
+                              transaction.status === "SUCCESS"
                                 ? "bg-green-500"
                                 : "bg-yellow-500"
                             }
