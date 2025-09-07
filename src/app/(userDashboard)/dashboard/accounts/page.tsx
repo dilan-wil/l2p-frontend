@@ -97,9 +97,7 @@ export default function AccountsPage() {
     // .filter((account) => account.type !== "credit")
     .reduce((sum, account) => sum + Number(account.balance), 0);
 
-  const totalDebt = userAccounts
-    // .filter((account) => account.type === "credit")
-    .reduce((sum, account) => sum + Math.abs(Number(account.balance)), 0);
+  const totalDebt = 0;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -128,7 +126,7 @@ export default function AccountsPage() {
             <DepositDialog accounts={userAccounts} accessToken={accessToken} />
           </div>
           <div>
-            <TransferDialog accounts={userAccounts} />
+            <TransferDialog accounts={userAccounts} accessToken={accessToken} />
           </div>
         </div>
       </div>

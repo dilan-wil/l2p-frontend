@@ -23,6 +23,7 @@ import { Calendar, Eye, Loader2 } from "lucide-react";
 import { Account } from "@/types/types";
 import { useAuth } from "@/hooks/auth-context";
 import { maskCardNumber } from "@/functions/maskCardNumber";
+import { toast } from "sonner";
 
 export default function AccountCard({
   account,
@@ -51,15 +52,19 @@ export default function AccountCard({
         selectedBranch === "yassa" ? "00077" : "00067"
       );
       setOpenDialog(false);
+      toast.success("Your account has successfully been created");
       router.refresh(); // refresh the page or fetch accounts again
     } catch (err) {
       console.error("Failed to open account", err);
+      toast.error(
+        "An error occured while creating your account, please try later"
+      );
     }
     setIsLoading(false);
   };
 
   const routeToViewPage = () => {
-    if (!account.active) return;
+    if (!account.rib) return;
 
     router.push(`/dashboard/accounts/${account.id}`);
   };
@@ -111,11 +116,7 @@ export default function AccountCard({
 
             {/* Conditional Action Button */}
             {account.rib ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push(`/account/${account.id}`)}
-              >
+              <Button variant="outline" size="sm" onClick={routeToViewPage}>
                 <Eye className="h-4 w-4 mr-2" />
                 View Details
               </Button>

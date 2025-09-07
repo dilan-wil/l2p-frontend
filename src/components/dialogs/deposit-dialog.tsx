@@ -93,13 +93,13 @@ export default function DepositDialog({
     const interval = setInterval(async () => {
       try {
         const res = await axios.get(
-          `${baseUrl}/accounts/check-deposit-status/${transactionId}`,
+          `${baseUrl}/accounts/check-deposit-status?transactionId=${transactionId}`,
           {
             headers: { Authorization: `Bearer ${accessToken}` },
           }
         );
         const statusData = res.data;
-
+        console.log(statusData);
         if (statusData.status === "SUCCESS") {
           toast.success("Deposit successful!");
           clearInterval(interval);
@@ -213,6 +213,7 @@ export default function DepositDialog({
                 variant="outline"
                 onClick={() => setOpen(false)}
                 className="flex-1"
+                disabled={loading}
               >
                 Cancel
               </Button>

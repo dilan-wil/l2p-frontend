@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRightLeft } from "lucide-react";
+import { ArrowRightLeft, Loader2 } from "lucide-react";
 import { Account } from "@/types/types";
 import {
   Select,
@@ -21,48 +21,72 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import axios from "axios";
+import { toast } from "sonner";
 
 interface TransferDialogProps {
   account?: Account; // optional: pre-selected "from account"
   accounts?: Account[]; // optional: pre-selected "from account"
+  accessToken: string | null;
 }
 
 export default function TransferDialog({
   account,
   accounts,
+  accessToken,
 }: TransferDialogProps) {
   const [open, setOpen] = useState(false);
-  const [fromAccount, setFromAccount] = useState(account?.id ?? "");
+  const [fromAccount, setFromAccount] = useState(account?.rib ?? "");
   const [toAccount, setToAccount] = useState("");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (account) setFromAccount(account.id);
   }, [account]);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!fromAccount || !toAccount || !amount) {
-      alert("Please fill all required fields.");
+      toast.error("Please fill all required fields.");
       return;
     }
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/transactions/transfer`,
+        {
+          fromAccountRib: fromAccount, // must be RIB, not id
+          toAccountRib: toAccount,
+          amount: Number(amount),
+          description: note || "Transfer",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    // here goes your transfer logic
-    console.log("Transfer confirmed:", {
-      fromAccount,
-      toAccount,
-      amount,
-      note,
-    });
+      // Handle success response
+      toast.success(`Transfer ${res.data.status}`);
+      console.log("Transfer success:", res.data);
 
-    // reset fields
-    if (!account) setFromAccount("");
-    setToAccount("");
-    setAmount("");
-    setNote("");
+      // Reset fields
+      if (!account) setFromAccount("");
+      setToAccount("");
+      setAmount("");
+      setNote("");
 
-    // close dialog
-    setOpen(false);
+      // Close dialog
+      setOpen(false);
+    } catch (err) {
+      console.error("Transfer failed:", err);
+      toast.error("Transfer failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -95,7 +119,7 @@ export default function TransferDialog({
                   {accounts
                     .filter((acc) => acc.rib)
                     .map((acc) => (
-                      <SelectItem key={acc.id} value={acc.id}>
+                      <SelectItem key={acc.id} value={acc.rib as string}>
                         {acc.type} ({acc.rib})
                       </SelectItem>
                     ))}
@@ -139,14 +163,17 @@ export default function TransferDialog({
           <div className="flex gap-3 pt-4">
             <Button
               onClick={handleConfirm}
+              disabled={loading}
               className="flex-1  bg-blue-500 hover:bg-blue-600"
             >
+              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Confirm Transfer
             </Button>
             <Button
               variant="outline"
               onClick={() => setOpen(false)}
               className="flex-1"
+              disabled={loading}
             >
               Cancel
             </Button>

@@ -1,107 +1,108 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Download, ArrowUpDown } from "lucide-react"
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Search, Download, ArrowUpDown } from "lucide-react";
+import { formatCurrency } from "@/functions/formatCurrency";
+import { Transaction, TransactionsResponse } from "@/types/types";
+import { useAuth } from "@/hooks/auth-context";
+import axios from "axios";
 
-// Mock transaction data
-const mockTransactions = [
-  {
-    id: "TXN001",
-    date: "2024-01-15",
-    amount: 2500.0,
-    type: "deposit",
-    status: "completed",
-    description: "Salary Deposit",
-    account: "Checking Account",
-  },
-  {
-    id: "TXN002",
-    date: "2024-01-14",
-    amount: -150.0,
-    type: "withdrawal",
-    status: "completed",
-    description: "ATM Withdrawal",
-    account: "Checking Account",
-  },
-  {
-    id: "TXN003",
-    date: "2024-01-13",
-    amount: -89.99,
-    type: "withdrawal",
-    status: "pending",
-    description: "Online Purchase",
-    account: "Credit Card",
-  },
-  {
-    id: "TXN004",
-    date: "2024-01-12",
-    amount: 1000.0,
-    type: "deposit",
-    status: "completed",
-    description: "Investment Return",
-    account: "Investment Account",
-  },
-  {
-    id: "TXN005",
-    date: "2024-01-11",
-    amount: -45.5,
-    type: "withdrawal",
-    status: "failed",
-    description: "Subscription Payment",
-    account: "Checking Account",
-  },
-]
+const baseUrl = "https://l2p-cooperative-backend.onrender.com";
 
 export default function TransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [sortBy, setSortBy] = useState("date")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { userAccounts, accessToken } = useAuth();
+  const [sortBy, setSortBy] = useState("date");
 
-  const filteredTransactions = mockTransactions.filter((transaction) => {
+  const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
-      transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.id.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesType = typeFilter === "all" || transaction.type === typeFilter
-    const matchesStatus = statusFilter === "all" || transaction.status === statusFilter
+      transaction.description
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === "all" || transaction.type === typeFilter;
+    const matchesStatus =
+      statusFilter === "all" || transaction.status === statusFilter;
 
-    return matchesSearch && matchesType && matchesStatus
-  })
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await axios.get<TransactionsResponse>(
+          `${baseUrl}/transactions/my-transactions?page=1&size=10`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+        setTransactions(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch transactions:", err);
+      }
+    };
+
+    fetchTransactions();
+  }, [accessToken]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-      case "failed":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+      case "SUCCESS":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "FAILED":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
-  }
+  };
 
   const formatAmount = (amount: number) => {
-    const isNegative = amount < 0
+    const isNegative = amount < 0;
     const formattedAmount = Math.abs(amount).toLocaleString("en-US", {
       style: "currency",
-      currency: "USD",
-    })
-    return isNegative ? `-${formattedAmount}` : formattedAmount
-  }
+      currency: "XAF",
+    });
+    return isNegative ? `-${formattedAmount}` : formattedAmount;
+  };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Transactions</h1>
-          <p className="text-muted-foreground">View and manage all your transactions</p>
+          <p className="text-muted-foreground">
+            View and manage all your transactions
+          </p>
         </div>
         <Button>
           <Download className="h-4 w-4 mr-2" />
@@ -116,16 +117,22 @@ export default function TransactionsPage() {
             <CardTitle className="text-sm font-medium">Total Income</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">$3,500.00</div>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(3000)}
+            </div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Expenses
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">$285.49</div>
+            <div className="text-2xl font-bold text-red-600">
+              {formatCurrency(300)}
+            </div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
@@ -134,7 +141,7 @@ export default function TransactionsPage() {
             <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$3,214.51</div>
+            <div className="text-2xl font-bold">{formatCurrency(3000)}</div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
@@ -144,7 +151,9 @@ export default function TransactionsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Filter Transactions</CardTitle>
-          <CardDescription>Search and filter your transaction history</CardDescription>
+          <CardDescription>
+            Search and filter your transaction history
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4">
@@ -189,7 +198,8 @@ export default function TransactionsPage() {
         <CardHeader>
           <CardTitle>Transaction History</CardTitle>
           <CardDescription>
-            Showing {filteredTransactions.length} of {mockTransactions.length} transactions
+            Showing {filteredTransactions.length} of {transactions.length}{" "}
+            transactions
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -198,7 +208,11 @@ export default function TransactionsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>
-                    <Button variant="ghost" size="sm" className="h-auto p-0 font-semibold">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 font-semibold"
+                    >
                       Date
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
@@ -212,24 +226,46 @@ export default function TransactionsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTransactions.map((transaction) => (
+                {transactions.map((transaction) => (
                   <TableRow key={transaction.id}>
-                    <TableCell className="font-medium">{new Date(transaction.date).toLocaleDateString()}</TableCell>
-                    <TableCell className="font-mono text-sm">{transaction.id}</TableCell>
+                    <TableCell className="font-medium">
+                      {new Date(transaction.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {transaction.id}
+                    </TableCell>
                     <TableCell>{transaction.description}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{transaction.account}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {
+                        userAccounts.find(
+                          (account) => account.id === transaction.toAccountId
+                        )?.type
+                      }
+                    </TableCell>
                     <TableCell>
-                      <Badge variant={transaction.type === "deposit" ? "default" : "secondary"}>
+                      <Badge
+                        variant={
+                          transaction.type === "DEPOSIT"
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
                         {transaction.type}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(transaction.status)}>{transaction.status}</Badge>
+                      <Badge className={getStatusColor(transaction.status)}>
+                        {transaction.status}
+                      </Badge>
                     </TableCell>
                     <TableCell
-                      className={`text-right font-medium ${transaction.amount > 0 ? "text-green-600" : "text-red-600"}`}
+                      className={`text-right font-medium ${
+                        Number(transaction.amount) > 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
                     >
-                      {formatAmount(transaction.amount)}
+                      {formatAmount(Number(transaction.amount))}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -239,5 +275,5 @@ export default function TransactionsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

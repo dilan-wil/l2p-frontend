@@ -73,6 +73,7 @@ import { useRouter } from "next/navigation";
 import { maskCardNumber } from "@/functions/maskCardNumber";
 import DepositDialog from "@/components/dialogs/deposit-dialog";
 import TransferDialog from "@/components/dialogs/transfer-dialog";
+import WithdrawalDialog from "@/components/dialogs/withdraw-dialog";
 
 // Mock data
 const mockUser = {
@@ -491,64 +492,16 @@ export default function BankingDashboard() {
                 />
 
                 {/* Transfer Dialog */}
-                <TransferDialog accounts={userAccounts} />
+                <TransferDialog
+                  accounts={userAccounts}
+                  accessToken={accessToken}
+                />
 
                 {/* Withdraw Dialog */}
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      className="w-full justify-start bg-transparent"
-                      variant="outline"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Withdraw Cash
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Withdraw Cash</DialogTitle>
-                      <DialogDescription>
-                        Withdraw money from your account
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="withdraw-account">Select Account</Label>
-                        <Select
-                          value={selectedAccount}
-                          onValueChange={setSelectedAccount}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose account" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {mockAccounts.map((account) => (
-                              <SelectItem
-                                key={account.id}
-                                value={account.id.toString()}
-                              >
-                                {account.name} ({account.accountNumber})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="withdraw-amount">Amount</Label>
-                        <Input
-                          id="withdraw-amount"
-                          type="number"
-                          placeholder="0.00"
-                          value={withdrawAmount}
-                          onChange={(e) => setWithdrawAmount(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button onClick={handleWithdraw}>Withdraw</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                <WithdrawalDialog
+                  accounts={userAccounts}
+                  accessToken={accessToken}
+                />
               </CardContent>
             </Card>
 
