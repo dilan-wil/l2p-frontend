@@ -278,12 +278,12 @@ export default function BankingDashboard() {
                         </TableCell>
                         <TableCell
                           className={`font-semibold ${
-                            Number(transaction.amount) > 0
+                            transaction.type === "DEPOSIT"
                               ? "text-green-600"
                               : "text-red-600"
                           }`}
                         >
-                          {Number(transaction.amount) > 0 ? "+" : ""}
+                          {transaction.type === "DEPOSIT" ? "+" : ""}
                           {formatCurrency(Number(transaction.amount))}
                         </TableCell>
                         <TableCell>

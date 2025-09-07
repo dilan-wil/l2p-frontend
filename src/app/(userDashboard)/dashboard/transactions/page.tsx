@@ -259,7 +259,7 @@ export default function TransactionsPage() {
                     </TableCell>
                     <TableCell
                       className={`text-right font-medium ${
-                        transaction.type !== "DEPOSIT"
+                        transaction.type === "DEPOSIT"
                           ? "text-green-600"
                           : "text-red-600"
                       }`}
